@@ -14,7 +14,12 @@
 % Emissions=Ncars*D*1.5*[(etaEV).*W_EV/1.5 +(1-etaEV).*W_ICE/1.5 ];
 % 
 
+% set up the path
+ExplorerSolutionPaths('ElectricCars')
 
+DrawdownMatlabPreferences;
+cd(SolutionsWorkingDir)
+cd('ElectricCars')
 
 % Tier 1:
 % country specific:
@@ -30,6 +35,9 @@
 %  Impact    = Effectiveness*Adoption
 %  ImpactLow = Effectiveness*AdoptionLow
 %  ImpactHigh= Effectiveness*AdoptionHigh
+
+
+
 
 EffectivenessMap=datablank;
 AdoptionMapCurrent=datablank;
@@ -80,7 +88,7 @@ end
 nsgfig=figure;
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
-NSS.units='gCO_2eq per passenger km';
+NSS.units='g CO_2-eq/pkm';
 NSS.title='Current emissions benefit of Electric Cars'
 NSS.cmap=ExplorerEffectivenessDiverging1;
 NSS.caxis=[-80 80]
@@ -89,8 +97,8 @@ DataToDrawdownFigures(EffectivenessMap,NSS,'Effectiveness_ElectricCars','Electri
 %% Adoption
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
-NSS.units='Million passenger km per year';
-NSS.title='Passenger km in Electric Cars'
+NSS.units='Mpkm/yr';
+NSS.title='Adoption of Electric Cars'
 NSS.cmap=ExplorerAdoption1;%'white_purple_red';
 NSS.caxis=[0 4e5]
 DataToDrawdownFigures(AdoptionMapCurrent/1e6,NSS,'Adoption_pkm','ElectricCarsFigsAndData/','');
@@ -98,8 +106,8 @@ DataToDrawdownFigures(AdoptionMapCurrent/1e6,NSS,'Adoption_pkm','ElectricCarsFig
 %% Adoption
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
-NSS.units='Million passenger km per year';
-NSS.title='Passenger km in Electric Cars - Low Adoption'
+NSS.units='Mpkm/yr';
+NSS.title='Electric Cars Adoption - Low'
 NSS.cmap=ExplorerAdoption1;%'white_purple_red';
 NSS.caxis=[0 2.6e6]
 DataToDrawdownFigures(AdoptionMapLow/1e6,NSS,'Adoption_pkm_low','ElectricCarsFigsAndData/','');
@@ -107,7 +115,7 @@ DataToDrawdownFigures(AdoptionMapLow/1e6,NSS,'Adoption_pkm_low','ElectricCarsFig
 %% Adoption
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
-NSS.units='Million passenger km per year - High Adoption';
+NSS.title='Electric Cars Adoption - High'
 NSS.title='Passenger km in Electric Cars'
 NSS.cmap=ExplorerAdoption1;%'white_purple_red';
 NSS.caxis=[0 5e6]

@@ -81,7 +81,7 @@ end
 nsgfig=figure;
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
-NSS.units='kg CO_2-eq per year';
+NSS.units='kg CO_2-eq/yr';
 NSS.title='Current emissions benefit of a single Electric Bicycle'
 NSS.cmap=ExplorerEffectiveness1;
 NSS.caxis=[0 60]
@@ -119,9 +119,9 @@ DataToDrawdownFigures(EffectivenessMap/1e3,NSS,'Effectiveness_ElectricBicycles',
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
 NSS.userinterppreference='tex'
-NSS.units='Mt CO_2eq/year';
-NSS.title='CO_2eq saved per year by use of Electric Bicycles Low Ambition Uptake'
-NSS.cmap='white_blue_green';
+NSS.units='Mt CO_2-eq/yr';
+NSS.title='CO_2eq saved per year by use of Electric Bicycles Low Adoption';
+NSS.cmap=ExplorerImpact1;
 NSS.caxis=[.99]
 DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low','ElectricBicycleFigsAndData/','');
 
@@ -129,9 +129,9 @@ DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low','ElectricBicycleFigsAnd
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
 NSS.userinterppreference='tex'
-NSS.units='Mt CO_2eq/year';
-NSS.title='CO_2eq saved per year by use of Electric Bicycles High Ambition Uptake'
-NSS.cmap='white_blue_green';
+NSS.units='Mt CO_2-eq/yr';
+NSS.title='CO_2-eq saved per year by use of Electric Bicycles High Adoption';
+NSS.cmap=ExplorerImpact1;
 NSS.caxis=[.99]
 DataToDrawdownFigures(ImpactMapHigh/1e12,NSS,'Impact_High','ElectricBicycleFigsAndData/','');
 

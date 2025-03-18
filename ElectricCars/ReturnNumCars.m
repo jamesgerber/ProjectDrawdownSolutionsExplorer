@@ -8,7 +8,7 @@ function Ncars=ReturnNumCars(ISO);
 
 persistent a
 if isempty(a)
-    a=readgenericcsv('/Users/jsgerber/sandbox/jsg216_MappingIndividualSolutions/ElectricVehicles/OICAExcerpt_PassengerVehicles.csv');
+    a=readgenericcsv('/Users/jsgerber/sandbox/jsg216_MappingIndividualSolutions/ElectricCars/OICAExcerpt_PassengerVehicles.csv');
 end
 
 idx=strmatch(ISO,a.ISO);

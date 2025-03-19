@@ -18,6 +18,11 @@ if nargin==1
     cleanup='';
 end
 
+if nargin==0
+    ls(basepath)
+    return
+end
+
 
 
 switch solution

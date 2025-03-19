@@ -50,7 +50,7 @@ ImpactMapHigh=datablank;
 
 gpvkmEV=datablank; % these are nice for intermediate checks
 gpvkmICE=datablank;  
-
+clear DS;  % data structure
 for j=1:263;
     [g0,ii]=getgeo41_g0(j);
     ISO=g0.gadm0codes{1};
@@ -82,7 +82,20 @@ for j=1:263;
     gpvkmICE(ii)=W_ICE;
     gpvkmEV(ii)=W_EV;
 
+DS(j).ISO=ISO;
+DS(j).Ncars=Ncars;
+DS(j).CurrentFractionCars=etaEV;
+DS(j).Effectiveness=Effectiveness;
+DS(j).AdoptionCurrent=etaEV*Ncars*Distancepkm;
+DS(j).AdoptionLow=0.44*Ncars*Distancepkm;
+DS(j).AdoptionHigh=0.80*Ncars*Distancepkm;
+DS(j).ImpactCurrent=Effectiveness*etaEV*Ncars*Distancepkm;
+DS(j).ImpactLow=Effectiveness*0.44*Ncars*Distancepkm;
+DS(j).ImpactHigh=Effectiveness*0.80*Ncars*Distancepkm;
 end
+sov2csv(vos2sov(DS),'ElectricCarsFigsAndData/ElectricCarsMappingData.csv');
+%
+
 
 %% Effectiveness
 nsgfig=figure;

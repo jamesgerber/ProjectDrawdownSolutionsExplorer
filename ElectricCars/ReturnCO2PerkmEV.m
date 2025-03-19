@@ -6,7 +6,7 @@ function [W_EV,EmissionsIntensity]=ReturnCO2PerkmEV(ISO);
 
 persistent a
 if isempty(a)
-    a=readgenericcsv('/Users/jsgerber/sandbox/jsg216_MappingIndividualSolutions/StatusQuoEmissionsData/OWIDGridCarbonIntensity/carbon-intensity-electricity.csv');
+    a=readgenericcsv('carbon-intensity-electricity.csv');
 end
 
 

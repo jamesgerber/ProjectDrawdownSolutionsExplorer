@@ -4,7 +4,7 @@ function etaEV=EVUptake(ISO);
 
 persistent a ISOlist stockshare
 if isempty(a)
-    a=readgenericcsv('mapEVuptake/IEA-EV-dataEV_salesHistoricalCarsnq.txt',1,tab,1);
+    a=readgenericcsv('IEA-EV-dataEV_salesHistoricalCarsnq.txt',1,tab,1);
 
 
 

@@ -54,6 +54,7 @@ gpvkmICE=datablank;
 for j=1:263;
     [g0,ii]=getgeo41_g0(j);
     ISO=g0.gadm0codes{1};
+    %ISO='USA';
 
     Ncars=ReturnNumCars(ISO);
     Distance=ReturnVkmPerCar(ISO);

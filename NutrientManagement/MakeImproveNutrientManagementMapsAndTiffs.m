@@ -37,8 +37,10 @@ NfertCropArea=tmp.*fma;
 % Emissions
 %%%%%%%%%%%%%%%%%%%%%%%%
 % Emissions
+nsgfig=figure;
 NSS=getDrawdownNSS;
 NSS.caxis=[0 1];
+NSS.figurehandle=nsgfig;
 NSS.cmap='ExplorerEmissions1';
 NSS.title='Emissions from Nutrient Management';
 NSS.units='tons CO_2-eq/ha';
@@ -56,10 +58,12 @@ DataToDrawdownFigures(NfertCropAreafrac,'','CropAreaFractionOfGridcell23Crops','
 
 [long,lat,tmp]=...
     processgeotiff([LocationOfMapsFromAvery '/map2_currentEFs_tco2e_tN.tif']);
-tmp(isnan(tmp))=0;
+%tmp(isnan(tmp))=0;
 NfertEmissionsPerUnitSolution=tmp;
 
+
 NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
 NSS.caxis=[0 9];
 NSS.cmap=ExplorerEffectiveness1;
 NSS.title='Emissions avoided per ton N avoided';
@@ -75,17 +79,17 @@ DataToDrawdownFigures(NfertEmissionsPerUnitSolution,NSS,'Effectiveness_nutrman',
 %%%%%%%%%%%%%%%%%%%%%%%%
 [long,lat,tmp]=...
     processgeotiff([LocationOfMapsFromAvery '/map3_currentadoption_tN.tif']);
-tmp(isnan(tmp))=0;
+%tmp(isnan(tmp))=0;
 CurrentAdoption=tmp./fma;
 
 [long,lat,tmp]=...
     processgeotiff([LocationOfMapsFromAvery '/map7_achievablelow_TN.tif']);
-tmp(isnan(tmp))=0;
+%tmp(isnan(tmp))=0;
 LowAdoption=tmp./fma;
 
 [long,lat,tmp]=...
     processgeotiff([LocationOfMapsFromAvery '/map6_achievablehigh_TN.tif']);
-tmp(isnan(tmp))=0;
+%tmp(isnan(tmp))=0;
 HighAdoption=tmp./fma;
 
 
@@ -101,6 +105,7 @@ CumulativeHighAdoption(ii)=CurrentAdoption(ii);
 
 
 NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
 NSS.caxis=[0 .1];
 NSS.units='tons N/ha';
 NSS.cmap=ExplorerAdoption1;
@@ -110,6 +115,7 @@ DataToDrawdownFigures(CurrentAdoption,NSS,'CurrentAdoption_nutrman','NutrientMan
 
 
 NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
 NSS.caxis=[0 .1];
 NSS.units='tons N/ha';
 NSS.cmap=ExplorerAdoption1;
@@ -118,11 +124,12 @@ DataToDrawdownFigures(CumulativeLowAdoption,NSS,'CumulativeLowAdoption_nutrman',
 
 
 NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
 NSS.caxis=[0 .1];
 NSS.units='tons N/ha';
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Improved Nutrient Management, High Adoption';
-DataToDrawdownFigures(CumulativeHighAdoption,NSS,'CumulativeLowAdoption_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(CumulativeHighAdoption,NSS,'CumulativeHighAdoption_nutrman','NutrientManagementFigsAndData/','');
 
 
 %%
@@ -131,6 +138,7 @@ DataToDrawdownFigures(CumulativeHighAdoption,NSS,'CumulativeLowAdoption_nutrman'
 %%%%%%%%%%%%%%%%%%%%%%%%
 
 NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
 NSS.caxis=[0 1];
 NSS.units='tons CO_2-eq/ha';
 NSS.cmap=ExplorerImpact1;
@@ -139,6 +147,7 @@ DataToDrawdownFigures(CurrentAdoption.*NfertEmissionsPerUnitSolution,NSS,'Curren
 
 
 NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
 NSS.caxis=[0 1];
 NSS.units='tons CO_2-eq/ha';
 NSS.cmap=ExplorerImpact1;
@@ -148,6 +157,7 @@ DataToDrawdownFigures(CumulativeLowAdoption.*NfertEmissionsPerUnitSolution,NSS,'
 
 
 NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
 NSS.caxis=[0 1];
 NSS.units='tons CO_2-eq/ha';
 NSS.cmap=ExplorerImpact1;
@@ -164,6 +174,7 @@ DataToDrawdownFigures(CumulativeHighAdoption.*NfertEmissionsPerUnitSolution,NSS,
 
 load N2O_PaperFigs/TotalappliedN_SavedFigureData  % data will be in OS.Data
 NSSsave=NSS;
+NSS.figurehandle=nsgfig;
 NSS=getDrawdownNSS;
 NSS.title='Total applied N';
 NSS.caxis=[0 300];

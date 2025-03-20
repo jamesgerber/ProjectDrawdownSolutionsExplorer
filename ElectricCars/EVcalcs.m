@@ -94,6 +94,8 @@ DS(j).ImpactCurrent=Effectiveness*etaEV*Ncars*Distancepkm;
 DS(j).ImpactLow=Effectiveness*0.44*Ncars*Distancepkm;
 DS(j).ImpactHigh=Effectiveness*0.80*Ncars*Distancepkm;
 end
+
+mkdir('ElectricCarsFigsAndData');
 sov2csv(vos2sov(DS),'ElectricCarsFigsAndData/ElectricCarsMappingData.csv');
 %
 
@@ -149,7 +151,7 @@ DataToDrawdownFigures(AdoptionMapPercentageCurrent,NSS,'Adoption_percent','Elect
 %% Impact
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
-NSS.units='Mt CO_2eq/year';
+NSS.units='Mt CO_2-eq/yr';
 NSS.userinterppreference='tex'
 NSS.title='CO_2eq saved per year by use of Electric Cars'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
@@ -160,8 +162,8 @@ DataToDrawdownFigures(ImpactMapCurrent/1e12,NSS,'Impact_Current_limitedcaxes','E
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
 NSS.userinterppreference='tex'
-NSS.units='Mt CO_2eq/year';
-NSS.title='CO_2eq saved per year by use of Electric Cars Low Ambition Uptake'
+NSS.units='Mt CO_2-eq/yr';
+NSS.title='CO_2-eq saved per year by use of Electric Cars Low Ambition Uptake'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 40]
 DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low_limitedcaxes','ElectricCarsFigsAndData/','');
@@ -170,9 +172,9 @@ DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low_limitedcaxes','ElectricC
 %% Impact
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
-NSS.units='Mt CO_2eq/year';
+NSS.units='Mt CO_2-eq/yr';
 NSS.userinterppreference='tex'
-NSS.title='CO_2eq saved per year by use of Electric Cars'
+NSS.title='CO_2-eq saved per year by use of Electric Cars'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 160]
 DataToDrawdownFigures(ImpactMapCurrent/1e12,NSS,'Impact_Current','ElectricCarsFigsAndData/','');
@@ -181,7 +183,7 @@ DataToDrawdownFigures(ImpactMapCurrent/1e12,NSS,'Impact_Current','ElectricCarsFi
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
 NSS.userinterppreference='tex'
-NSS.units='Mt CO_2eq/year';
+NSS.units='Mt CO_2-eq/yr';
 NSS.title='CO_2eq saved per year by use of Electric Cars Low Ambition Uptake'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 160]
@@ -191,8 +193,8 @@ DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low','ElectricCarsFigsAndDat
 NSS=getDrawdownNSS;
 NSS.figurehandle=nsgfig;
 NSS.userinterppreference='tex'
-NSS.units='Mt CO_2eq/year';
-NSS.title='CO_2eq saved per year by use of Electric Cars High Ambition Uptake'
+NSS.units='Mt CO_2-eq/yr';
+NSS.title='CO_2-eq saved per year by use of Electric Cars High Ambition Uptake'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 160]
 DataToDrawdownFigures(ImpactMapHigh/1e12,NSS,'Impact_High','ElectricCarsFigsAndData/','');

@@ -48,10 +48,13 @@ EffectivenessMap=datablank;
 ImpactMapLow=datablank;
 ImpactMapHigh=datablank;
 
+clear DS
 
-for j=1:263;
-    [g0,ii]=getgeo41_g0(j);
-    ISO=g0.gadm0codes{1};
+for j=1:numel(gadmlimitedlist);
+    ISO=gadmlimitedlist(j);
+    [g0,ii]=getgeo41_g0(ISO);
+
+    %ISO=g0.gadm0codes{1};
 
     Ncars=ReturnNumCars(ISO);
     Distance=688;  % pkm
@@ -75,7 +78,21 @@ for j=1:263;
     
     ImpactMapLow(ii)=Effectiveness*Ncars*.07;
     ImpactMapHigh(ii)=Effectiveness*Ncars*.5;
+
+
+    DS(j).ISO=ISO;
+    DS(j).Ncars=Ncars;
+    DS(j).Effectiveness=Effectiveness/1e3;
+    DS(j).ImpactLow=Effectiveness*Ncars*.07/1e12;
+    DS(j).ImpactHigh=Effectiveness*Ncars*.5/1e12;
+
+
 end
+
+
+mkdir('ElectricBicycleFigsAndData');
+sov2csv(vos2sov(DS),'ElectricBicycleFigsAndData/ElectricBicyclesMappingData.csv');
+
 
 %% Effectiveness
 nsgfig=figure;

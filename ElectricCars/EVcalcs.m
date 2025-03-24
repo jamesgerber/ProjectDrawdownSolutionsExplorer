@@ -87,12 +87,12 @@ DS(j).ISO=ISO;
 DS(j).Ncars=Ncars;
 DS(j).CurrentFractionCars=etaEV;
 DS(j).Effectiveness=Effectiveness;
-DS(j).AdoptionCurrent=etaEV*Ncars*Distancepkm;
-DS(j).AdoptionLow=0.44*Ncars*Distancepkm;
-DS(j).AdoptionHigh=0.80*Ncars*Distancepkm;
-DS(j).ImpactCurrent=Effectiveness*etaEV*Ncars*Distancepkm;
-DS(j).ImpactLow=Effectiveness*0.44*Ncars*Distancepkm;
-DS(j).ImpactHigh=Effectiveness*0.80*Ncars*Distancepkm;
+DS(j).AdoptionCurrent=etaEV*Ncars*Distancepkm/1e6;
+DS(j).AdoptionLow=0.44*Ncars*Distancepkm/1e6;
+DS(j).AdoptionHigh=0.80*Ncars*Distancepkm/1e6;
+DS(j).ImpactCurrent=Effectiveness*etaEV*Ncars*Distancepkm/1e12;
+DS(j).ImpactLow=Effectiveness*0.44*Ncars*Distancepkm/1e12;
+DS(j).ImpactHigh=Effectiveness*0.80*Ncars*Distancepkm/1e12;
 end
 
 mkdir('ElectricCarsFigsAndData');

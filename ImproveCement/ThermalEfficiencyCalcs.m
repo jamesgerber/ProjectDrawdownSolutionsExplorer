@@ -14,6 +14,8 @@ EmissionsPerThermalEnergyGj=0.0847; % tCO2/Gj
 EmissionsPerThermalEnergy=0.0847/1000; % tCO2/Mj
 worstcaseTEC=3914.7;
 
+
+ceilingTEC=2300;
 for j=1:261;
 
     ISO=gadmlimitedlist(j);
@@ -77,7 +79,7 @@ EmissionsSavingsFromTodayToHighAmbition(EmissionsSavingsFromTodayToHighAmbition<
 
 TonsCleanConcrete=Productionmap.*...
     (worstcaseemissions-todayemissions)./...
-   (worstcaseemissions-highambitionemissions);
+   (worstcaseemissions-ceilingambitionemissions);
 
 
 
@@ -87,57 +89,56 @@ TonsCleanConcrete=Productionmap.*...
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %GJ/t - categorical
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-cmap=finemap('seaglass','','');
-cmap=[1 1 1; 1 1 1; 1 1 1; 1 1 1; 1 1 1; 1 1 1; 1 1 1; cmap];
 NSS=getDrawdownNSS;
 NSS.title='Current Adoption: Thermally Efficient Cement Production';
-NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
+%NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
 NSS.units='MJ/Mt';
-NSS.cmap=ExplorerAdoption1;
+NSS.cmap='revExplorerAdoption1';
+NSS.caxis=[3000 4000];
 NSS.figurehandle=nsgfig;
 DataToDrawdownFigures(TECmap,NSS,'CurrentAdoption_Cement_ThermalEfficiencyCoefficient','ImprovedCement_ThermalEfficiency');
 
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%Tons concrete produced efficiently - non-categorical and categorical
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-NSS=getDrawdownNSS;
-NSS.title='Current Adoption: Thermally Efficient Cement Production';
-NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
-NSS.units='tonnes';
-NSS.cmap=cmap;
-NSS.figurehandle=nsgfig;
-
-DataToDrawdownFigures(TonsCleanConcrete,NSS,'CurrentAdoption_Cement_TonsProducedCleanly','ImprovedCement_ThermalEfficiency');
-
-
-
-
-% Adoption = % of high Ambition TEC relative to current lowest TEC
-% high ambition = 3150;
-% current worst = 3914.7;
-
-% let's do a linear mapping.   
-
-tmp=(TECmap-3150)/(3914.7-3150);
-ii=TECmap==0;
-tmp(ii)=nan;
-tmp=(1-tmp)*100;
-tmp(tmp<0)=0;
-
-PercentAdoptionThermalEfficiency=tmp;
-
-NSS=getDrawdownNSS;
-NSS.title='Current Adoption: Thermally Efficient Concrete Production';
-NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
-NSS.units='%';
-NSS.cmap=ExplorerAdoption1;
-NSS.figurehandle=nsgfig;
-DataToDrawdownFigures(TonsCleanConcrete,NSS,'CurrentAdoption_Cement_PercentProducedCleanly','ImprovedCement_ThermalEfficiency');
-
-
-% here again, code in JSG's notes
+% % 
+% % 
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % %Tons concrete produced efficiently - non-categorical and categorical
+% % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % NSS=getDrawdownNSS;
+% % NSS.title='Current Adoption: Thermally Efficient Cement Production';
+% % NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
+% % NSS.units='tonnes';
+% % NSS.cmap=cmap;
+% % NSS.figurehandle=nsgfig;
+% % 
+% % DataToDrawdownFigures(TonsCleanConcrete,NSS,'CurrentAdoption_Cement_TonsProducedCleanly','ImprovedCement_ThermalEfficiency');
+% % 
+% % 
+% % 
+% % 
+% % % Adoption = % of high Ambition TEC relative to current lowest TEC
+% % % high ambition = 3150;
+% % % current worst = 3914.7;
+% % 
+% % % let's do a linear mapping.   
+% % 
+% % tmp=(TECmap-ceilingTEC)/(3914.7-ceilingTEC);
+% % ii=TECmap==0;
+% % tmp(ii)=nan;
+% % tmp=(1-tmp)*100;
+% % tmp(tmp<0)=0;
+% % 
+% % PercentAdoptionThermalEfficiency=tmp;
+% % 
+% % NSS=getDrawdownNSS;
+% % NSS.title='Current Adoption: Thermally Efficient Concrete Production';
+% % NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
+% % NSS.units='%';
+% % NSS.cmap=ExplorerAdoption1;
+% % NSS.figurehandle=nsgfig;
+% % DataToDrawdownFigures(TonsCleanConcrete,NSS,'CurrentAdoption_Cement_PercentProducedCleanly','ImprovedCement_ThermalEfficiency');
+% % 
+% % 
+% % % here again, code in JSG's notes
 
 %%%%%%%%%%%%%%%%%
 % Current impact%
@@ -152,10 +153,8 @@ NSS=getDrawdownNSS;
 NSS.title='Emissions savings from current levels of adoption of thermal efficiency';
 NSS.DisplayNotes='Relative to 2022 lowest efficiencies';
 NSS.units='Mt CO_2-eq/yr';
-NSS.cmap='dark_purple_blue_green';
+NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
-nsg(CurrentImpactMt,NSS)
-maketransparentoceans_noant_nogridlinesnostates_removeislands('temp.png','CurrentImpact_ThermalEfficiency.png',[1 1 1],1);
 DataToDrawdownFigures(CurrentImpactMt,NSS,'CurrentImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
 
 
@@ -171,13 +170,10 @@ LowAmbitionImpactMt=tmp/1000;
 
 NSS=getDrawdownNSS;
 NSS.title='Emissions savings moving from current to low-ambition thermal efficiency';
-NSS.DisplayNotes='Relative to 2022 lowest efficiencies';
 NSS.units='Mt CO_2-eq/yr';
-NSS.cmap='dark_purple_blue_green';
+NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
-nsg(LowAmbitionImpactMt,NSS)
-maketransparentoceans_noant_nogridlinesnostates_removeislands('temp.png','ImpactLowAmbition_ThermalEfficiency.png',[1 1 1],1);
-
+DataToDrawdownFigures(CurrentImpactMt,NSS,'LowAmbitionImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -191,12 +187,10 @@ HighAmbitionImpactMt=tmp/1000;
 
 NSS=getDrawdownNSS;
 NSS.title='Emissions savings moving from current to high-ambition thermal efficiency';
-NSS.DisplayNotes='Relative to 2022 lowest efficiencies';
 NSS.units='Mt CO_2-eq/yr';
 NSS.figurehandle=nsgfig;
-%NSS.cmap=finemap('dark_purple_blue_green','','');
-nsg(HighAmbitionImpactMt,NSS)
-maketransparentoceans_noant_nogridlinesnostates_removeislands('temp.png','ImpactHighAmbition_ThermalEfficiency.png',[1 1 1],1);
+NSS.cmap=ExplorerImpact1;
+DataToDrawdownFigures(CurrentImpactMt,NSS,'HighAmbitionImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
 
 
 

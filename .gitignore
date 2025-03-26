@@ -1,0 +1,7 @@
+.gitignore~
+*.m~
+.DS_Store
+*.asv
+figures/
+./*
+*.key

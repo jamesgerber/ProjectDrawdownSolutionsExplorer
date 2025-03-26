@@ -1,12 +1,11 @@
 a=readgenericcsv('intermediatedatafiles/CementGCCAData.csv')
 
 %% Calculation Section
-baselineemissions=datablank*nan;
-todayemissions=datablank*nan;
-worstcaseemissions=datablank*nan;
-lowambitionemissions=datablank*nan;
-highambitionemissions=datablank*nan;
-ceilingambitionemissions=datablank*nan;
+baselineimpact=datablank*nan;
+todayimpact=datablank*nan;
+lowambitionimpact=datablank*nan;
+highambitionimpact=datablank*nan;
+ceilingambitionimpact=datablank*nan;
 
 Productionmap=datablank*nan;
 TECmap=datablank;
@@ -19,9 +18,19 @@ ceilingTEC=2300;
 for j=1:261;
 
     ISO=gadmlimitedlist(j);
+    
     [g0,ii]=getgeo41_g0(ISO);
 
     [TEC,Prod,C2C,AltFuelsRatio,Emissions]=CountrySpecificCementFactors(g0.gadm0codes{1});
+    if isempty(AltFuelsRatio)
+        AltFuelsRatio=nan;
+    end
+    if isempty(C2C)
+        C2C=nan;
+    end
+    if isempty(TEC)
+        TEC=nan;
+    end
 
     if isempty(Prod);
 
@@ -33,55 +42,45 @@ for j=1:261;
     if ~isempty(TEC)
         TECmap(ii)=TEC;
 
-
         todayemissionsvalue=Prod*C2C*TEC*EmissionsPerThermalEnergy;
-        todayemissions(ii)=todayemissionsvalue;
-
         worstcaseemissionsvalue=Prod*C2C*worstcaseTEC*EmissionsPerThermalEnergy;
-        worstcaseemissions(ii)=worstcaseemissionsvalue;
-
-
         baselineemissionsvalue=Prod*C2C*3550*EmissionsPerThermalEnergy;
-        baselineemissions(ii)=baselineemissionsvalue;
-
         lowambitionemissionsvalue=Prod*C2C*3250*EmissionsPerThermalEnergy;
-        lowambitionemissions(ii)=lowambitionemissionsvalue;
-
         highambitionemissionsvalue=Prod*C2C*3150*EmissionsPerThermalEnergy;
-        highambitionemissions(ii)=highambitionemissionsvalue;
-
         ceilingambitionemissionsvalue=Prod*C2C*2300*EmissionsPerThermalEnergy;
-        ceilingambitionemissions(ii)=ceilingambitionemissionsvalue;
+
+        todayimpact(ii)=max(0,worstcaseemissionsvalue-todayemissionsvalue);
+        baselineimpact(ii)=max(0,worstcaseemissionsvalue-baselineemissionsvalue);
+        lowambitionimpact(ii)=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
+        highambitionimpact(ii)=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
+        ceilingambitionimpact(ii)=max(0,worstcaseemissionsvalue-ceilingambitionemissionsvalue);
+    else
+        todayemissionsvalue=Prod*C2C*nan*EmissionsPerThermalEnergy;
+        worstcaseemissionsvalue=Prod*C2C*worstcaseTEC*EmissionsPerThermalEnergy;
+        baselineemissionsvalue=Prod*C2C*3550*EmissionsPerThermalEnergy;
+        lowambitionemissionsvalue=Prod*C2C*3250*EmissionsPerThermalEnergy;
+        highambitionemissionsvalue=Prod*C2C*3150*EmissionsPerThermalEnergy;
+        ceilingambitionemissionsvalue=Prod*C2C*2300*EmissionsPerThermalEnergy;
     end
 
     DS(j).ISO=ISO;
-    DS(j).todayemissionsvalue=todayemissionsvalue;
-    DS(j).baselineemissions=baselineemissionsvalue;
-    DS(j).worstcaseemissions=worstcaseemissionsvalue;
-    DS(j).lowambitionemissionsvalue=lowambitionemissionsvalue;
-    DS(j).highambitionemissionsvalue=highambitionemissionsvalue;
-    DS(j).ceilingambitionemissionsvalue=ceilingambitionemissionsvalue;
+    DS(j).todayimpact=max(0,worstcaseemissionsvalue-todayemissionsvalue);
+    DS(j).baselineimpact=max(0,worstcaseemissionsvalue-baselineemissionsvalue);
+    DS(j).lowambitionimpact=max(0,worstcaseemissionsvalue-worstcaseemissionsvalue);
+    DS(j).highambitionimpact=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
+    DS(j).ceilingambitionimpact=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
+    DS(j).lowambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).lowambitionimpact);
+    DS(j).highambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).highambitionimpact);
+    DS(j).ceilingambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).ceilingambitionimpact);
     DS(j).ThermalEfficiencyConstant=TEC;
     DS(j).Production=Prod;
-    DS(j).TonsCleanConcrete=Prod*(worstcaseemissionsvalue-todayemissionsvalue)/ ...
-        (worstcaseemissionsvalue-highambitionemissionsvalue)/1e3;
-    
 end
 
-nsgfig=figure;
-
-EmissionsSavingsFromTodayToLowAmbition=todayemissions-lowambitionemissions;
-EmissionsSavingsFromTodayToLowAmbition(EmissionsSavingsFromTodayToLowAmbition<0)=0;
-
-EmissionsSavingsFromTodayToHighAmbition=todayemissions-highambitionemissions;
-EmissionsSavingsFromTodayToHighAmbition(EmissionsSavingsFromTodayToHighAmbition<0)=0;
+mkdir('ImprovedCement_ThermalEfficiency');
+sov2csv(vos2sov(DS),'ImprovedCement_ThermalEfficiency/ImprovedCement_ThermalEfficiencyMappingData.csv');
 
 
-TonsCleanConcrete=Productionmap.*...
-    (worstcaseemissions-todayemissions)./...
-   (worstcaseemissions-ceilingambitionemissions);
-
-
+nsgfig=figure('Visible','off');
 
 %%%%%%%%%%%%%%%%%
 % adoption:     %
@@ -144,18 +143,14 @@ DataToDrawdownFigures(TECmap,NSS,'CurrentAdoption_Cement_ThermalEfficiencyCoeffi
 % Current impact%
 %%%%%%%%%%%%%%%%%
 % this is the difference between worst case emissions map and todays map
-
-tmp=worstcaseemissions-todayemissions;
-tmp(tmp<0)=0;
-CurrentImpactMt=tmp/1000;
+todayimpactMt=todayimpact/1000;
 
 NSS=getDrawdownNSS;
 NSS.title='Emissions savings from current levels of adoption of thermal efficiency';
-NSS.DisplayNotes='Relative to 2022 lowest efficiencies';
 NSS.units='Mt CO_2-eq/yr';
 NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
-DataToDrawdownFigures(CurrentImpactMt,NSS,'CurrentImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
+DataToDrawdownFigures(todayimpactMt,NSS,'CurrentImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
 
 
 
@@ -164,16 +159,14 @@ DataToDrawdownFigures(CurrentImpactMt,NSS,'CurrentImpact_Cement_Mt','ImprovedCem
 %%%%%%%%%%%%%%%%%%%%%%
 % this is the difference between worst case emissions map and todays map
 
-tmp=todayemissions-lowambitionemissions;
-tmp(tmp<0)=0;
-LowAmbitionImpactMt=tmp/1000;
+LowAmbitionImpactMt=lowambitionimpact/1000;
 
 NSS=getDrawdownNSS;
-NSS.title='Emissions savings moving from current to low-ambition thermal efficiency';
+NSS.title='Emissions savings, adoption of low-ambition thermal efficiency';
 NSS.units='Mt CO_2-eq/yr';
 NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
-DataToDrawdownFigures(CurrentImpactMt,NSS,'LowAmbitionImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
+DataToDrawdownFigures(max(LowAmbitionImpactMt,todayimpactMt),NSS,'LowAmbitionImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
 
 
 %%%%%%%%%%%%%%%%%%%%%%
@@ -181,16 +174,15 @@ DataToDrawdownFigures(CurrentImpactMt,NSS,'LowAmbitionImpact_Cement_Mt','Improve
 %%%%%%%%%%%%%%%%%%%%%%
 % this is the difference between worst case emissions map and todays map
 
-tmp=todayemissions-highambitionemissions;
-tmp(tmp<0)=0;
-HighAmbitionImpactMt=tmp/1000;
+
+HighAmbitionImpactMt=highambitionimpact/1000;
 
 NSS=getDrawdownNSS;
-NSS.title='Emissions savings moving from current to high-ambition thermal efficiency';
+NSS.title='Emissions savings, adoption of high-ambition thermal efficiency';
 NSS.units='Mt CO_2-eq/yr';
 NSS.figurehandle=nsgfig;
 NSS.cmap=ExplorerImpact1;
-DataToDrawdownFigures(CurrentImpactMt,NSS,'HighAmbitionImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
+DataToDrawdownFigures(max(HighAmbitionImpactMt,todayimpactMt),NSS,'HighAmbitionImpact_Cement_Mt','ImprovedCement_ThermalEfficiency');
 
 
 

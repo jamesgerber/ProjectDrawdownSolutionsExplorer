@@ -66,9 +66,9 @@ for j=1:261;
     DS(j).ISO=ISO;
     DS(j).todayimpact=max(0,worstcaseemissionsvalue-todayemissionsvalue);
     DS(j).baselineimpact=max(0,worstcaseemissionsvalue-baselineemissionsvalue);
-    DS(j).lowambitionimpact=max(0,worstcaseemissionsvalue-worstcaseemissionsvalue);
-    DS(j).highambitionimpact=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
-    DS(j).ceilingambitionimpact=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
+    DS(j).lowambitionimpact=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
+    DS(j).highambitionimpact=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
+    DS(j).ceilingambitionimpact=max(0,worstcaseemissionsvalue-ceilingambitionemissionsvalue);
     DS(j).lowambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).lowambitionimpact);
     DS(j).highambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).highambitionimpact);
     DS(j).ceilingambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).ceilingambitionimpact);
@@ -89,9 +89,9 @@ nsgfig=figure('Visible','off');
 %GJ/t - categorical
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NSS=getDrawdownNSS;
-NSS.title='Current Adoption: Thermally Efficient Cement Production';
+NSS.title='Current Adoption: Efficiency of Clinker Production';
 %NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
-NSS.units='MJ/Mt';
+NSS.units='MJ/Mt clinker';
 NSS.cmap='revExplorerAdoption1';
 NSS.caxis=[3000 4000];
 NSS.figurehandle=nsgfig;

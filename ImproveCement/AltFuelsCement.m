@@ -82,9 +82,9 @@ sov2csv(vos2sov(DS),'ImprovedCement_AltFuels/ImprovedCement_AltFuelsMappingData.
 %GJ/t - categorical
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NSS=getDrawdownNSS;
-NSS.title='Current Adoption: AltFuels';
+NSS.title='Current Adoption: Alternative Fuels';
 %NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
-NSS.units='%';
+NSS.units='% alternative fuel in cement production';
 NSS.cmap='ExplorerAdoption1';
 NSS.caxis=[0 100];
 NSS.figurehandle=nsgfig;
@@ -110,7 +110,7 @@ DataToDrawdownFigures(todayemissionssavings,NSS,'CurrentImpact_AltFuels','Improv
 %%%%%%%%%%%%%%%%%%%%%%
 
 NSS=getDrawdownNSS;
-NSS.title='Emissions savings from low ambition levels of alternate fuels usage';
+NSS.title='Emissions savings from low ambition levels of alternative fuels usage';
 NSS.units='Mt CO_2-eq/yr';
 NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
@@ -123,7 +123,7 @@ DataToDrawdownFigures(lowambitionemissionssavings,NSS,'LowAmbitionAdoptionImpact
 %%%%%%%%%%%%%%%%%%%%%%
 
 NSS=getDrawdownNSS;
-NSS.title='Emissions savings from high ambition levels of alternate fuels usage';
+NSS.title='Emissions savings from high ambition levels of alternative fuels usage';
 NSS.units='Mt CO_2-eq/yr';
 NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;

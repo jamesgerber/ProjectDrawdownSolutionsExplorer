@@ -4,11 +4,25 @@
 
 oldwd=pwd;
 
-%cd('~/DrawdownSolutions/');
-cd('/Users/alexsweeney/Documents/MATLAB/ProjectDrawdownSolutionsExplorer');
+switch getenv('USER')
+    case 'jsgerber'
+        cd('~/DrawdownSolutions/');
+    case 'alexsweeney'
+        cd('/Users/alexsweeney/Documents/MATLAB/ProjectDrawdownSolutionsExplorer');
+
+    otherwise
+      %  cd('~/DrawdownSolutions/');
+
+
+end
+
 disp(['changing dir to ' pwd ', stored old dir in oldwd']);
 
 disp(['try something like this:'])
 disp(['ExplorerSolutionPaths ImproveCement'])
+disp(' ')
+disp(' here are the files in working directory')
+ls
+
 
 

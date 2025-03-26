@@ -96,7 +96,7 @@ sov2csv(vos2sov(DS),'ImprovedCement_ClinkerSubstitution/ImprovedCement_ClinkerSu
 NSS=getDrawdownNSS;
 NSS.title='Current Adoption: Clinker Substitution';
 %NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
-NSS.units='%';
+NSS.units='Substitute material %';
 NSS.cmap='ExplorerAdoption1';
 NSS.caxis=[20 60];
 NSS.figurehandle=nsgfig;

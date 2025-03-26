@@ -15,6 +15,9 @@ For all of these, we rely on detailed data provided by GCCA.
 Input files and sources
 Dradwdown_NGO_GNR_2022.xlsx - provided by GCCA 
 cement_country_emissions_production_2024.csv - this was provided by Alex Sweeney and contains data from Climate Trace
+downloaded on February 11, 2025. Code to reproduce CSV documented here:
+https://github.com/alxswny/pd-solutions/blob/main/solutions/cement/climate_trace_cement_spatializing.ipynb
+
 GCCA_RegionGroups.csv - relates ISO country codes to the GCCA regions
  XXXXX.csv - 
 

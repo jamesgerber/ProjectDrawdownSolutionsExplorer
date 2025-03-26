@@ -12,15 +12,18 @@ There are three sub-solutions for the improved cement solution:
 
 For all of these, we rely on detailed data provided by GCCA.
 
-Input files and sources
+Input files and sources:
 Dradwdown_NGO_GNR_2022.xlsx - provided by GCCA 
+
 cement_country_emissions_production_2024.csv - this was provided by Alex Sweeney and contains data from Climate Trace
+downloaded on February 11, 2025. Code to reproduce CSV documented here:
+https://github.com/alxswny/pd-solutions/blob/main/solutions/cement/climate_trace_cement_spatializing.ipynb
+
 GCCA_RegionGroups.csv - relates ISO country codes to the GCCA regions
  XXXXX.csv - 
 
 
 Here is the calculation process:
-
 
 importGCCAData.m - a preprocessing step that parses the .xlsx data using matlab-written
 import functions and then some jsg-written functions to pull out the relevant data which

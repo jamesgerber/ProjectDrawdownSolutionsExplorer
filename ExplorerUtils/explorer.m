@@ -4,7 +4,8 @@
 
 oldwd=pwd;
 
-cd('~/DrawdownSolutions/');
+%cd('~/DrawdownSolutions/');
+cd('/Users/alexsweeney/Documents/MATLAB/ProjectDrawdownSolutionsExplorer');
 disp(['changing dir to ' pwd ', stored old dir in oldwd']);
 
 disp(['try something like this:'])

@@ -1,10 +1,12 @@
 a=readgenericcsv('intermediatedatafiles/CementGCCAData.csv')
 
 %% Calculation Section
-todayemissionssavings=datablank*nan;
-lowambitionemissionssavings=datablank*nan;
-highambitionemissionssavings=datablank*nan;
+todayimpact=datablank*nan;
+baselineimpact=datablank*nan;
+lowambitionimpact=datablank*nan;
+highambitionimpact=datablank*nan;
 SPcurrentmap=datablank*nan;
+
 
 SPworst=0;
 SPbaseline=18.569;
@@ -12,10 +14,12 @@ SPlow=19.05;
 SPhigh=43.1;
 SPceil=67.15;
 
+clear DS
+
 for j=1:261;
 
     ISO=gadmlimitedlist(j);
-    [g0,ii]=getgeo41_g0(ISO);
+        [g0,ii]=getgeo41_g0(ISO);
 
     [TEC,Prod,C2C,AltFuelsRatio,Emissions]=CountrySpecificCementFactors(g0.gadm0codes{1});
 
@@ -37,27 +41,48 @@ for j=1:261;
     end
     if ~isempty(SPcurrent)
         SPcurrentmap(ii)=SPcurrent;
-        todayemissionsvalue=Prod*SPcurrent*240000/1e6/100/1e6;
-        worstcaseemissionsvalue=Prod*SPworst*240000/1e6/100/1e6;
-        baselineemissionsvalue=Prod*240000*SPbaseline/1e6/100/1e6;
-        lowambitionemissionsvalue=Prod*240000*SPlow/1e6/100/1e6;
-        highambitionemissionsvalue=Prod*240000*SPhigh/1e6/100/1e6;
-        
-        todayemissionssavings(ii)=max(0,todayemissionsvalue-worstcaseemissionsvalue);
-        lowambitionemissionssavings(ii)=max(0,lowambitionemissionsvalue-todayemissionsvalue);
-        highambitionemissionssavings(ii)=max(0,highambitionemissionsvalue-todayemissionsvalue);
+        todaysavingsvalue=Prod*SPcurrent*240000/1e6/100/1e6;
+        worstcasesavingsvalue=Prod*SPworst*240000/1e6/100/1e6;
+        baselinesavingsvalue=Prod*240000*SPbaseline/1e6/100/1e6;
+        lowambitionsavingsvalue=Prod*240000*SPlow/1e6/100/1e6;
+        highambitionsavingsvalue=Prod*240000*SPhigh/1e6/100/1e6;
+        ceilingambitionsavingsvalue=Prod*240000*SPceil/1e6/100/1e6;
+
+        % todaysavingssavings(ii)=max(0,todaysavingsvalue-worstcasesavingsvalue);
+        % lowambitionsavingssavings(ii)=max(0,lowambitionsavingsvalue-worstcasesavingsvalue);
+        % highambitionsavingssavings(ii)=max(0,highambitionsavingsvalue-worstcasesavingsvalue);
+
+
+        todayimpact(ii)=max(0,todaysavingsvalue-worstcasesavingsvalue);
+        baselineimpact(ii)=max(0,baselinesavingsvalue-worstcasesavingsvalue);
+        lowambitionimpact(ii)=max(0,lowambitionsavingsvalue-worstcasesavingsvalue);
+        highambitionimpact(ii)=max(0,highambitionsavingsvalue-worstcasesavingsvalue);
+        ceilingambitionimpact(ii)=max(0,ceilingambitionsavingsvalue-worstcasesavingsvalue);
+    else
+        todaysavingsvalue=Prod*C2C*nan*EmissionsPerThermalEnergy;
+        worstcasesavingsvalue=Prod*C2C*worstcaseTEC*EmissionsPerThermalEnergy;
+        baselinesavingsvalue=Prod*C2C*3550*EmissionsPerThermalEnergy;
+        lowambitionsavingsvalue=Prod*C2C*3250*EmissionsPerThermalEnergy;
+        highambitionsavingsvalue=Prod*C2C*3150*EmissionsPerThermalEnergy;
+        ceilingambitionsavingsvalue=Prod*C2C*2300*EmissionsPerThermalEnergy;
     end
+
 
 
     DS(j).ISO=ISO;
     DS(j).SubstitionPercent=SPcurrent;
     DS(j).Production=Prod;
-    DS(j).todayimpact=max(0,todayemissionsvalue-worstcaseemissionsvalue);
-    DS(j).lowambitionemissionssavingsvalue=max(0,lowambitionemissionsvalue-todayemissionsvalue);
-    DS(j).highambitionemissionssavingsvalue=max(0,highambitionemissionsvalue-todayemissionsvalue);
+    DS(j).todayimpact=max(0,todaysavingsvalue-worstcasesavingsvalue);
+    DS(j).baselineimpact=max(0,baselinesavingsvalue-worstcasesavingsvalue);
+    DS(j).lowambitionimpact=max(0,worstcasesavingsvalue-worstcasesavingsvalue);
+    DS(j).highambitionimpact=max(0,lowambitionsavingsvalue-worstcasesavingsvalue);
+    DS(j).ceilingambitionimpact=max(0,highambitionsavingsvalue-worstcasesavingsvalue);
+    DS(j).lowambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).lowambitionimpact);
+    DS(j).highambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).highambitionimpact);
+    DS(j).ceilingambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).ceilingambitionimpact);
 end
 
-nsgfig=figure;
+nsgfig=figure('Visible','off');
 
 mkdir('ImprovedCement_ClinkerSubstitution');
 sov2csv(vos2sov(DS),'ImprovedCement_ClinkerSubstitution/ImprovedCement_ClinkerSubstitutionMappingData.csv');
@@ -84,11 +109,11 @@ DataToDrawdownFigures(SPcurrentmap,NSS,'CurrentAdoption_Cement_ClinkerSubstituti
 
 
 NSS=getDrawdownNSS;
-NSS.title='Emissions savings from current levels of clinker subsitution';
+NSS.title='Emissions savings from current adoption of clinker subsitution';
 NSS.units='Mt CO_2-eq/yr';
 NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
-DataToDrawdownFigures(todayemissionssavings,NSS,'CurrentImpact_Clinker','ImprovedCement_ClinkerSubstitution');
+DataToDrawdownFigures(todayimpact,NSS,'CurrentImpact_Clinker','ImprovedCement_ClinkerSubstitution');
 
 
 
@@ -97,11 +122,11 @@ DataToDrawdownFigures(todayemissionssavings,NSS,'CurrentImpact_Clinker','Improve
 %%%%%%%%%%%%%%%%%%%%%%
 
 NSS=getDrawdownNSS;
-NSS.title='Emissions savings from current levels of clinker subsitution';
+NSS.title='Emissions savings from low ambition adoption of clinker subsitution';
 NSS.units='Mt CO_2-eq/yr';
 NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
-DataToDrawdownFigures(lowambitionemissionssavings,NSS,'LowAmbitionAdoptionImpact_Clinker','ImprovedCement_ClinkerSubstitution');
+DataToDrawdownFigures(lowambitionimpact,NSS,'LowAmbitionAdoptionImpact_Clinker','ImprovedCement_ClinkerSubstitution');
 
 
 
@@ -110,11 +135,11 @@ DataToDrawdownFigures(lowambitionemissionssavings,NSS,'LowAmbitionAdoptionImpact
 %%%%%%%%%%%%%%%%%%%%%%
 
 NSS=getDrawdownNSS;
-NSS.title='Emissions savings from current levels of clinker subsitution';
+NSS.title='Emissions savings from high ambition adoption of clinker subsitution';
 NSS.units='Mt CO_2-eq/yr';
 NSS.cmap=ExplorerImpact1;
 NSS.figurehandle=nsgfig;
-DataToDrawdownFigures(highambitionemissionssavings,NSS,'HighAmbitionAdoptionImpact_Clinker','ImprovedCement_ClinkerSubstitution');
+DataToDrawdownFigures(highambitionimpact,NSS,'HighAmbitionAdoptionImpact_Clinker','ImprovedCement_ClinkerSubstitution');
 
 
 

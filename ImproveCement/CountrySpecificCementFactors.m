@@ -16,7 +16,7 @@ if isempty(c)
 
     b=readgenericcsv('inputdatafiles/GCCA_RegionGroups.csv');
     GCCA=readgenericcsv('intermediatedatafiles/CementGCCAData.csv');
-    c=readgenericcsv('intermediatedatafiles/cement_country_emissions_production_2024.csv');
+    c=readgenericcsv('inputdatafiles/cement_country_emissions_production_2024.csv');
 end
 
 
@@ -31,7 +31,7 @@ if isempty(idx)
     % see if it's in c
     idx=strmatch(ISO,c.GID_0);
     EmissionsThisCountry=str2double(c.emissions_quantity(idx));
-    ProductionThisCountry=str2double(c.prod_country_total_megatons(idx));
+    ProductionThisCountry=str2double(c.prod_country_total(idx));
 
     Production=ProductionThisCountry;
     Emissions=EmissionsThisCountry;
@@ -87,7 +87,7 @@ end
 % what are emissions from this country?
 idx=strmatch(ISO,c.GID_0);
 EmissionsThisCountry=str2double(c.emissions_quantity(idx));
-ProductionThisCountry=str2double(c.prod_country_total_megatons(idx));
+ProductionThisCountry=str2double(c.prod_country_total(idx));
 
 
 if isempty(EmissionsThisCountry);

@@ -16,55 +16,68 @@ worstcaseTEC=3914.7;
 
 ceilingTEC=2300;
 for j=1:261;
-
     ISO=gadmlimitedlist(j);
-    
     [g0,ii]=getgeo41_g0(ISO);
 
-    [TEC,Prod,C2C,AltFuelsRatio,Emissions]=CountrySpecificCementFactors(g0.gadm0codes{1});
-    if isempty(AltFuelsRatio)
-        AltFuelsRatio=nan;
-    end
-    if isempty(C2C)
-        C2C=nan;
-    end
-    if isempty(TEC)
-        TEC=nan;
+    [TEC,Prod,C2C,AltFuelsRatio,~]=CountrySpecificCementFactors(g0.gadm0codes{1});
+
+    if ~isnan(TEC) &  isfinite(Prod) ;
+        DataStatus=0; % the best, we have GCCR data and production
+    elseif isnan(Prod)
+        DataStatus=2; % sad! no GCCR, and no Production
+    else
+        DataStatus=1; % No GCCR, but there is Production
     end
 
-    if isempty(Prod);
-
+    if DataStatus==2
         Productionmap(ii)=nan;
     else
         Productionmap(ii)=Prod;
-
     end
-    if ~isempty(TEC)
-        TECmap(ii)=TEC;
 
-        todayemissionsvalue=Prod*C2C*TEC*EmissionsPerThermalEnergy;
-        worstcaseemissionsvalue=Prod*C2C*worstcaseTEC*EmissionsPerThermalEnergy;
-        baselineemissionsvalue=Prod*C2C*3550*EmissionsPerThermalEnergy;
-        lowambitionemissionsvalue=Prod*C2C*3250*EmissionsPerThermalEnergy;
-        highambitionemissionsvalue=Prod*C2C*3150*EmissionsPerThermalEnergy;
-        ceilingambitionemissionsvalue=Prod*C2C*2300*EmissionsPerThermalEnergy;
 
+    if DataStatus==1
+        AltFuelsRatio=nan;
+        C2C=nan;
+        SPcurrent=nan;
+        TEC=nan;
+    end
+    if DataStatus==2;
+        AltFuelsRatio=nan;
+        C2C=nan;
+        SPcurrent=nan;
+        Prod=nan;
+        TEC=nan;
+    end
+
+
+    TECmap(ii)=TEC;
+    todayemissionsvalue=Prod*C2C*TEC*EmissionsPerThermalEnergy;
+    worstcaseemissionsvalue=Prod*C2C*worstcaseTEC*EmissionsPerThermalEnergy;
+    baselineemissionsvalue=Prod*C2C*3550*EmissionsPerThermalEnergy;
+    lowambitionemissionsvalue=Prod*C2C*3250*EmissionsPerThermalEnergy;
+    highambitionemissionsvalue=Prod*C2C*3150*EmissionsPerThermalEnergy;
+    ceilingambitionemissionsvalue=Prod*C2C*2300*EmissionsPerThermalEnergy;
+
+    if DataStatus==0
         todayimpact(ii)=max(0,worstcaseemissionsvalue-todayemissionsvalue);
         baselineimpact(ii)=max(0,worstcaseemissionsvalue-baselineemissionsvalue);
         lowambitionimpact(ii)=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
         highambitionimpact(ii)=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
         ceilingambitionimpact(ii)=max(0,worstcaseemissionsvalue-ceilingambitionemissionsvalue);
-    else
-        todayemissionsvalue=Prod*C2C*nan*EmissionsPerThermalEnergy;
-        worstcaseemissionsvalue=Prod*C2C*worstcaseTEC*EmissionsPerThermalEnergy;
-        baselineemissionsvalue=Prod*C2C*3550*EmissionsPerThermalEnergy;
-        lowambitionemissionsvalue=Prod*C2C*3250*EmissionsPerThermalEnergy;
-        highambitionemissionsvalue=Prod*C2C*3150*EmissionsPerThermalEnergy;
-        ceilingambitionemissionsvalue=Prod*C2C*2300*EmissionsPerThermalEnergy;
     end
 
     DS(j).ISO=ISO;
-    DS(j).todayimpact=max(0,worstcaseemissionsvalue-todayemissionsvalue);
+    DS(j).DataStatus=DataStatus;
+
+    % need this because max(0,nan)=0 for reasons that elude me.
+    if DataStatus>0
+        DS(j).todayimpact=NaN;
+    else
+        DS(j).todayimpact=max(0,worstcaseemissionsvalue-todayemissionsvalue);
+    end
+
+
     DS(j).baselineimpact=max(0,worstcaseemissionsvalue-baselineemissionsvalue);
     DS(j).lowambitionimpact=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
     DS(j).highambitionimpact=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
@@ -97,8 +110,8 @@ NSS.caxis=[3000 4000];
 NSS.figurehandle=nsgfig;
 DataToDrawdownFigures(TECmap,NSS,'CurrentAdoption_Cement_ThermalEfficiencyCoefficient','ImprovedCement_ThermalEfficiency');
 
-% % 
-% % 
+% %
+% %
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % % %Tons concrete produced efficiently - non-categorical and categorical
 % % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -108,26 +121,26 @@ DataToDrawdownFigures(TECmap,NSS,'CurrentAdoption_Cement_ThermalEfficiencyCoeffi
 % % NSS.units='tonnes';
 % % NSS.cmap=cmap;
 % % NSS.figurehandle=nsgfig;
-% % 
+% %
 % % DataToDrawdownFigures(TonsCleanConcrete,NSS,'CurrentAdoption_Cement_TonsProducedCleanly','ImprovedCement_ThermalEfficiency');
-% % 
-% % 
-% % 
-% % 
+% %
+% %
+% %
+% %
 % % % Adoption = % of high Ambition TEC relative to current lowest TEC
 % % % high ambition = 3150;
 % % % current worst = 3914.7;
-% % 
-% % % let's do a linear mapping.   
-% % 
+% %
+% % % let's do a linear mapping.
+% %
 % % tmp=(TECmap-ceilingTEC)/(3914.7-ceilingTEC);
 % % ii=TECmap==0;
 % % tmp(ii)=nan;
 % % tmp=(1-tmp)*100;
 % % tmp(tmp<0)=0;
-% % 
+% %
 % % PercentAdoptionThermalEfficiency=tmp;
-% % 
+% %
 % % NSS=getDrawdownNSS;
 % % NSS.title='Current Adoption: Thermally Efficient Concrete Production';
 % % NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
@@ -135,8 +148,8 @@ DataToDrawdownFigures(TECmap,NSS,'CurrentAdoption_Cement_ThermalEfficiencyCoeffi
 % % NSS.cmap=ExplorerAdoption1;
 % % NSS.figurehandle=nsgfig;
 % % DataToDrawdownFigures(TonsCleanConcrete,NSS,'CurrentAdoption_Cement_PercentProducedCleanly','ImprovedCement_ThermalEfficiency');
-% % 
-% % 
+% %
+% %
 % % % here again, code in JSG's notes
 
 %%%%%%%%%%%%%%%%%

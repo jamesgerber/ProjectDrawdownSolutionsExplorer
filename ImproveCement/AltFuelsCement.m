@@ -19,49 +19,67 @@ clear DS
 for j=1:261;
 
     ISO=gadmlimitedlist(j);
-        [g0,ii]=getgeo41_g0(ISO);
+    [g0,ii]=getgeo41_g0(ISO);
 
-    [TEC,Prod,C2C,AltFuelsRatio,Emissions]=CountrySpecificCementFactors(g0.gadm0codes{1});
-    if isempty(AltFuelsRatio)
-        AltFuelsRatio=nan;
-    end
-    if isempty(C2C)
-        C2C=nan;
+    [TEC,Prod,C2C,AltFuelsRatio,~]=CountrySpecificCementFactors(g0.gadm0codes{1});
+
+    if ~isnan(TEC) &  isfinite(Prod) ;
+        DataStatus=0; % the best, we have GCCR data and production
+    elseif isnan(Prod)
+        DataStatus=2; % sad! no GCCR, and no Production
+    else
+        DataStatus=1; % No GCCR, but there is Production
     end
 
-    if isempty(Prod);
+    if DataStatus==2
         Productionmap(ii)=nan;
     else
         Productionmap(ii)=Prod;
     end
 
-    if ~isempty(AltFuelsRatio)
-        AltFuelsRatioCurrentMap(ii)=AltFuelsRatio;
-        todayemissionsspared=Prod*AltFuelsRatio*Effectiveness; % in mt (metric tons) CO2-eq
-        worstcaseemissionsspared=Prod*AFRWorst*Effectiveness;
-        baselineemissionsspared=Prod*AFRbaseline*Effectiveness;
-        lowambitionemissionsspared=Prod*AFRlow*Effectiveness;
-        highambitionemissionsspared=Prod*AFRhigh*Effectiveness;
-        ceilambitionemissionsspared=Prod*AFRceil*Effectiveness;
-        
+
+    if DataStatus==1
+        AltFuelsRatio=nan;
+        C2C=nan;
+    end
+    if DataStatus==2;
+        AltFuelsRatio=nan;
+        C2C=nan;
+        Prod=nan;
+    end
+
+
+    AltFuelsRatioCurrentMap(ii)=AltFuelsRatio;
+    todayemissionsspared=Prod*AltFuelsRatio*Effectiveness; % in mt (metric tons) CO2-eq
+    worstcaseemissionsspared=Prod*AFRWorst*Effectiveness;
+    baselineemissionsspared=Prod*AFRbaseline*Effectiveness;
+    lowambitionemissionsspared=Prod*AFRlow*Effectiveness;
+    highambitionemissionsspared=Prod*AFRhigh*Effectiveness;
+    ceilambitionemissionsspared=Prod*AFRceil*Effectiveness;
+
+    if DataStatus==0
         todayemissionssavings(ii)=max(0,todayemissionsspared-worstcaseemissionsspared)/1e6;
         lowambitionemissionssavings(ii)=max(0,lowambitionemissionsspared-worstcaseemissionsspared)/1e6;
         highambitionemissionssavings(ii)=max(0,highambitionemissionsspared-worstcaseemissionsspared)/1e6;
         ceilambitionemissionssavings(ii)=max(0,ceilambitionemissionsspared-worstcaseemissionsspared)/1e6;
-    else
-        todayemissionsspared=Prod*AltFuelsRatio*Effectiveness; % in mt (metric tons) CO2-eq
-        worstcaseemissionsspared=Prod*AFRWorst*Effectiveness;
-        baselineemissionsspared=Prod*AFRbaseline*Effectiveness;
-        lowambitionemissionsspared=Prod*AFRlow*Effectiveness;
-        highambitionemissionsspared=Prod*AFRhigh*Effectiveness;
-        ceilambitionemissionsspared=Prod*AFRceil*Effectiveness;
     end
+
+
 
 
     DS(j).ISO=ISO;
     DS(j).AltFuelsRatio=AltFuelsRatio;
     DS(j).Production=Prod;
-    DS(j).todayimpact=max(0,todayemissionsspared-worstcaseemissionsspared)/1e6;
+    DS(j).DataStatus=DataStatus;
+
+    % need this because max(0,nan)=0 for reasons that elude me.
+    if DataStatus>0
+        DS(j).todayimpact=NaN;
+    else
+        DS(j).todayimpact=max(0,todayemissionsspared-worstcaseemissionsspared)/1e6;
+    end
+
+
     DS(j).lowambitionimpact=max(0,lowambitionemissionsspared-worstcaseemissionsspared)/1e6;
     DS(j).highambitionimpact=max(0,highambitionemissionsspared-worstcaseemissionsspared)/1e6;
     DS(j).ceilingambitionimpact=max(0,ceilambitionemissionsspared-worstcaseemissionsspared)/1e6;

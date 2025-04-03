@@ -16,7 +16,7 @@ NSS.title='Soil Carbon Debt';
 NSS.DisplayNotes={'Sanderman et al, PNAS 2017'}
 NSS.caxis=[0 400];
 
-DataToDrawdownFigures((raster0-raster)*3.67,NSS,'Context_SoilCarbonDebt','ImproveAnnualCropping');
+DataToDrawdownFigures((raster0-raster)*3.67,NSS,'Context_SoilCarbonDebt','ImproveAnnualCroppingMapsAndData');
 
 %% land in conservation agriculture - first version (Prestele):
 [croplandraster,pastureraster]=get2015croppasturearea;
@@ -35,9 +35,9 @@ NSS.cmap=ExplorerAdoption1;
 NSS.caxis=[0 1];
 NSS.logicalinclude=croplandraster>0.2;
 NSS.DisplayNotes={'Data from Prestele et al'};
-DataToDrawdownFigures(BaselineCAEstimate,NSS,'CurrentAdoptionPrestele','ImproveAnnualCropping');
+DataToDrawdownFigures(BaselineCAEstimate,NSS,'CurrentAdoptionPrestele','ImproveAnnualCroppingMapsAndData');
 
-DataToDrawdownFigures(croplandraster,'','CroplandRaster_AuxiliaryData','ImproveAnnualCropping');
+DataToDrawdownFigures(croplandraster,'','CroplandRaster_AuxiliaryData','ImproveAnnualCroppingMapsAndData');
 
 %% land in conservation agriculture - second version (Kassam)
 a=readgenericcsv('inputdatafiles/KassamData.csv');
@@ -142,7 +142,7 @@ NSS.Title=['Land in Improved Annual Cropping'];
 NSS.Units=['Mha'];
 NSS.cmap=ExplorerAdoption1;
 NSS.DisplayNotes={'Data from Kassam et al, 2022'};
-DataToDrawdownFigures(CAarea,NSS,'CurrentAdoptionKassam','ImproveAnnualCropping');
+DataToDrawdownFigures(CAarea,NSS,'CurrentAdoptionKassam','ImproveAnnualCroppingMapsAndData');
 
 
 %%
@@ -152,7 +152,7 @@ NSS.Units=['%'];
 NSS.cmap=ExplorerAdoption1;
 NSS.caxis=[0 100]
 NSS.DisplayNotes={'Data from Kassam et al, 2022'};
-DataToDrawdownFigures(CAareafraction*100,NSS,'CurrentAdoptionKassamFraction','ImproveAnnualCropping');
+DataToDrawdownFigures(CAareafraction*100,NSS,'CurrentAdoptionKassamFraction','ImproveAnnualCroppingMapsAndData');
 
 
 
@@ -166,7 +166,7 @@ NSS.Title=['Impact of adoption of Improved Annual Cropping'];
 NSS.Units=['Mt CO_2-eq/yr'];
 NSS.cmap=ExplorerImpact1;
 NSS.DisplayNotes={'Data from Kassam et al, 2022'};
-DataToDrawdownFigures(currentimpact,NSS,'CurrentImpact','ImproveAnnualCropping');
+DataToDrawdownFigures(currentimpact,NSS,'CurrentImpact','ImproveAnnualCroppingMapsAndData');
 
 
 %lowambitionimpact=min(CAarea,totaareamap*.*1.80;

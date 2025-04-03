@@ -124,7 +124,7 @@ CA2025=max(CA2025,0);
     end
 
 
-totalarea=nansum(croplandraster(ii).*fma(ii));
+    totalarea=nansum(croplandraster(ii).*fma(ii));
 
     CAarea(ii)=CA(j)*1000;
     CAareafraction(ii)=CA(j)*1000/totalarea;
@@ -132,11 +132,15 @@ totalarea=nansum(croplandraster(ii).*fma(ii));
 
 
     DS(j).GADM=output.GADM_ISO;
-    DS(j).ConservationAgricultureArea=CA(j)*1000;
+    DS(j).ConservationAgricultureArea2025=CA(j)*1000;
     DS(j).TotalCroplandArea=totalarea;
 
 end
 %%
+mkdir('ImproveAnnualCroppingMapsAndData');
+sov2csv(vos2sov(DS),'ImproveAnnualCroppingMapsAndData/ImprovedAnnualCroppingMappingData.csv');
+
+
 NSS=getDrawdownNSS;
 NSS.Title=['Land in Improved Annual Cropping'];
 NSS.Units=['Mha'];

@@ -18,11 +18,19 @@ end
 
 disp(['changing dir to ' pwd ', stored old dir in oldwd']);
 
-disp(['try something like this:'])
-disp(['ExplorerSolutionPaths ImproveCement'])
+% let's propose changing directories to latest
+
 disp(' ')
 disp(' here are the files in working directory')
 ls
 
+
+
+
+files = dir();
+files=files(~startsWith({files.name}, '.'));
+[~,idx]=max([files.datenum]);
+disp(['try something like this:'])
+disp(['ExplorerSolutionPaths ' char(files(idx).name)])
 
 

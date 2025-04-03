@@ -4,7 +4,8 @@ One simple code here, it plots some context data (Sanderman soil carbon
 loss) 
 Prestele (a spatialized assessment of conservation agriculture uptake)
 And Kassam 2022 data, which has country-specific estimates of land in CA 
-for a variety of years (2008,2013,2015,2018)
+for a variety of years (2008,2013,2015,2018).  Sanderman soil carbon loss
+data layers are in tons C/ha, I plot in tons CO2-eq/ha.
 
 to be consistent with the written solution, I do a linear extrapolation
 of the reported area from Kassam.   IF there's only data for 2018 then I 
@@ -20,5 +21,5 @@ been in conservation agriculture for 30 years is saturated.  In mapping
 we have excluded this consideration here because we don't have adequate
 geospatial data on where these practices were in place 30 years ago.
 
-We used the Kassam data without regard to the caveats in the data
+We used the Kassam data without regard to the caveats in the data file
 

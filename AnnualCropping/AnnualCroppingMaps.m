@@ -16,7 +16,7 @@ NSS.title='Soil Carbon Debt';
 NSS.DisplayNotes={'Sanderman et al, PNAS 2017'}
 NSS.caxis=[0 400];
 
-DataToDrawdownFigures((raster0-raster)*3.67,NSS,'Context_SoilCarbonDebt','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(single(raster0-raster)*3.67,NSS,'Context_SoilCarbonDebt_C02eqha','ImproveAnnualCroppingMapsAndData');
 
 %% land in conservation agriculture - first version (Prestele):
 [croplandraster,pastureraster]=get2015croppasturearea;
@@ -42,9 +42,9 @@ DataToDrawdownFigures(croplandraster,'','CroplandRaster_AuxiliaryData','ImproveA
 %% land in conservation agriculture - second version (Kassam)
 a=readgenericcsv('inputdatafiles/KassamData.csv');
 clear DS
-CAarea=datablank;
+CAareaha=datablank;
 CAareafraction=datablank;
-totalareamap=datablank;
+totalareamapha=datablank;
 for j=1:numel(a.Num);
     %CA(j)
     tmp=str2num(strrep(strrep(strrep(a.CAArea2018{j},'+',''),'#',''),'"',''));
@@ -82,23 +82,23 @@ y(8)=x15;
 y(11)=x18;
 [x0,x1,Rsq,p,sig,SSE,linfit]=VectorizedLinearRegressionnan(y.');
 
-CA2025=x0+x1*17;
+CA2025kha=x0+x1*17;
 
 % now catch the cases where only last data column non-empty
-if isnan(CA2025) & isfinite(x18)
-    CA2025=x18;
+if isnan(CA2025kha) & isfinite(x18)
+    CA2025kha=x18;
 end
-CA2025=max(CA2025,0);
+CA2025kha=max(CA2025kha,0);
 
 
 
     if numel(tmp)==0;
         a.Name{j}
         a.CAArea2018{j}
-        CA(j)=0;
+        CAha(j)=0;
         keyboard
     else
-        CA(j)=CA2025;
+        CAha(j)=CA2025kha*1000;
     end
     switch a.Name{j}
         case 'USA'
@@ -124,17 +124,18 @@ CA2025=max(CA2025,0);
     end
 
 
-    totalarea=nansum(croplandraster(ii).*fma(ii));
+    totalareaha=nansum(croplandraster(ii).*fma(ii));
 
-    CAarea(ii)=CA(j)*1000;
-    CAareafraction(ii)=CA(j)*1000/totalarea;
-    totalareamap(ii)=totalarea;
+    CAareaha(ii)=CAha(j);
+    CAareafraction(ii)=CAha(j)/totalareaha;
+    totalareamapha(ii)=totalareaha;
 
 
     DS(j).GADM=output.GADM_ISO;
-    DS(j).ConservationAgricultureArea2025=CA(j)*1000;
-    DS(j).TotalCroplandArea=totalarea;
-
+    DS(j).ConservationAgricultureArea2025_ha=CAha(j);
+    DS(j).TotalCroplandArea_ha=totalareaha;
+    DS(j).PercentUpdate=CAha(j)/totalareaha;
+    DS(j).CurrentImpact_MtCO2eq_yr=CAha(j)*1.80/1e6;
 end
 %%
 mkdir('ImproveAnnualCroppingMapsAndData');
@@ -146,7 +147,7 @@ NSS.Title=['Land in Improved Annual Cropping'];
 NSS.Units=['Mha'];
 NSS.cmap=ExplorerAdoption1;
 NSS.DisplayNotes={'Data from Kassam et al, 2022'};
-DataToDrawdownFigures(CAarea,NSS,'CurrentAdoptionKassam','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(CAareaha,NSS,'CurrentAdoptionKassam','ImproveAnnualCroppingMapsAndData');
 
 
 %%
@@ -162,7 +163,7 @@ DataToDrawdownFigures(CAareafraction*100,NSS,'CurrentAdoptionKassamFraction','Im
 
 %% impact
 % 1.80 t CO2-eq/ha/yr
-currentimpact=CAarea.*1.80/1000;
+currentimpact=CAareaha.*1.80/1000000;
 
 %%
 NSS=getDrawdownNSS;

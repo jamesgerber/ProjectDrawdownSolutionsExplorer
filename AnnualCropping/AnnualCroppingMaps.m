@@ -115,6 +115,8 @@ CA2025kha=max(CA2025kha,0);
             output.GADM_ISO='TLS';
         case 'DR Congo'
             output.GADM_ISO='COD';
+        case 'UK'
+            output.GADM_ISO='GBR'
         otherwise
             output=standardcountrynames(a.Name{j})
     end

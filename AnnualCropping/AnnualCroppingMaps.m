@@ -5,6 +5,8 @@
 [long,lat,raster]=processgeotiff('inputdatafiles/SOCS_0_200cm_year_2010AD_10km.tif');
 [long,lat,raster0]=processgeotiff('inputdatafiles/SOCS_0_200cm_year_NoLU_10km.tif');
 
+raster=single(raster);
+raster0=single(raster0);
 
 raster(raster==-32767)=nan;
 raster0(raster0==-32767)=nan;

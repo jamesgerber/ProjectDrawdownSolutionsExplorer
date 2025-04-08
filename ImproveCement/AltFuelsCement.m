@@ -102,7 +102,7 @@ sov2csv(vos2sov(DS),'ImprovedCement_AltFuels/ImprovedCement_AltFuelsMappingData.
 NSS=getDrawdownNSS;
 NSS.title='Current Adoption: Alternative Fuels';
 %NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
-NSS.units='% alternative fuel in cement production';
+NSS.units='% of alternative fuel in cement production';
 NSS.cmap='ExplorerAdoption1';
 NSS.caxis=[0 100];
 NSS.figurehandle=nsgfig;

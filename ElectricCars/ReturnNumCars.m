@@ -8,7 +8,7 @@ function Ncars=ReturnNumCars(ISO);
 
 persistent a
 if isempty(a)
-    a=readgenericcsv('OICAExcerpt_PassengerVehicles.csv');
+    a=readgenericcsv('inputdatafiles/OICAExcerpt_PassengerVehicles.csv');
 end
 
 idx=strmatch(ISO,a.ISO);

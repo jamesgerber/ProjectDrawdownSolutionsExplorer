@@ -6,7 +6,7 @@ function [W_EV,EmissionsIntensity]=ReturnCO2PerkmEV(ISO);
 
 persistent a
 if isempty(a)
-    a=readgenericcsv('carbon-intensity-electricity.csv');
+    a=readgenericcsv('inputdatafiles/carbon-intensity-electricity.csv');
 end
 
 

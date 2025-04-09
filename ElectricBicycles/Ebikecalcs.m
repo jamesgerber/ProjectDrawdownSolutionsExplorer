@@ -101,7 +101,7 @@ NSS.figurehandle=nsgfig;
 NSS.units='kg CO_2-eq/yr';
 NSS.title='Current emissions benefit of a single Electric Bicycle'
 NSS.cmap=ExplorerEffectiveness1;
-NSS.caxis=[0 60]
+NSS.caxis=[45 55]
 DataToDrawdownFigures(EffectivenessMap/1e3,NSS,'Effectiveness_ElectricBicycles','ElectricBicycleFigsAndData/','');
 
 % %% Adoption

@@ -18,8 +18,8 @@
 ExplorerSolutionPaths('ElectricCars')
 
 DrawdownMatlabPreferences;
-cd(SolutionsWorkingDir)
-cd('ElectricCars')
+% cd(SolutionsWorkingDir)
+% cd('ElectricCars')
 
 % Tier 1:
 % country specific:

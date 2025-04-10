@@ -11,7 +11,7 @@ Productionmap=datablank*nan;
 TECmap=datablank;
 EmissionsPerThermalEnergyGj=0.0847; % tCO2/Gj
 EmissionsPerThermalEnergy=0.0847/1000; % tCO2/Mj
-worstcaseTEC=3914.7;
+worstcaseTEC=3914.7; % MJ/t clinker
 
 
 ceilingTEC=2300;
@@ -52,6 +52,8 @@ for j=1:261;
 
 
     TECmap(ii)=TEC;
+    %                   t* 1 *MJ/t*tCO2/MJ
+    % so these units are tC02
     todayemissionsvalue=Prod*C2C*TEC*EmissionsPerThermalEnergy;
     worstcaseemissionsvalue=Prod*C2C*worstcaseTEC*EmissionsPerThermalEnergy;
     baselineemissionsvalue=Prod*C2C*3550*EmissionsPerThermalEnergy;
@@ -82,11 +84,13 @@ for j=1:261;
     DS(j).lowambitionimpact=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
     DS(j).highambitionimpact=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
     DS(j).ceilingambitionimpact=max(0,worstcaseemissionsvalue-ceilingambitionemissionsvalue);
+    DS(j).lowambitioncumulativeimpactfrombaseline=max(DS(j).baselineimpact,DS(j).lowambitionimpact);
     DS(j).lowambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).lowambitionimpact);
     DS(j).highambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).highambitionimpact);
     DS(j).ceilingambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).ceilingambitionimpact);
     DS(j).ThermalEfficiencyConstant=TEC;
     DS(j).Production=Prod;
+    DS(j).clinkertocementratio=C2C;
 end
 
 mkdir('ImprovedCement_ThermalEfficiency');
@@ -102,9 +106,9 @@ nsgfig=figure('Visible','off');
 %GJ/t - categorical
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 NSS=getDrawdownNSS;
-NSS.title='Current Adoption: Efficiency of Clinker Production';
+NSS.title='Current Adoption: Efficiency of Cement Production';
 %NSS.DisplayNotes='Range from 2020 lowest efficiency relative to high ambition adoption';
-NSS.units='MJ thermal energy/Mt clinker';
+NSS.units='MJ thermal energy/t clinker';
 NSS.cmap='revExplorerAdoption1';
 NSS.caxis=[3000 4000];
 NSS.figurehandle=nsgfig;
@@ -156,7 +160,7 @@ DataToDrawdownFigures(TECmap,NSS,'CurrentAdoption_Cement_ThermalEfficiencyCoeffi
 % Current impact%
 %%%%%%%%%%%%%%%%%
 % this is the difference between worst case emissions map and todays map
-todayimpactMt=todayimpact/1000;
+todayimpactMt=todayimpact/1000000;
 
 NSS=getDrawdownNSS;
 NSS.title='Emissions savings from current levels of adoption of thermal efficiency';
@@ -172,7 +176,7 @@ DataToDrawdownFigures(todayimpactMt,NSS,'CurrentImpact_Cement_Mt','ImprovedCemen
 %%%%%%%%%%%%%%%%%%%%%%
 % this is the difference between worst case emissions map and todays map
 
-LowAmbitionImpactMt=lowambitionimpact/1000;
+LowAmbitionImpactMt=lowambitionimpact/1000000;
 
 NSS=getDrawdownNSS;
 NSS.title='Emissions savings, adoption of low-ambition thermal efficiency';
@@ -188,7 +192,7 @@ DataToDrawdownFigures(max(LowAmbitionImpactMt,todayimpactMt),NSS,'LowAmbitionImp
 % this is the difference between worst case emissions map and todays map
 
 
-HighAmbitionImpactMt=highambitionimpact/1000;
+HighAmbitionImpactMt=highambitionimpact/1000000;
 
 NSS=getDrawdownNSS;
 NSS.title='Emissions savings, adoption of high-ambition thermal efficiency';

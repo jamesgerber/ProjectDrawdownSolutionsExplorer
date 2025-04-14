@@ -76,14 +76,14 @@ for j=1:261;
     if DataStatus>0
         DS(j).todayimpact=NaN;
     else
-        DS(j).todayimpact=max(0,worstcaseemissionsvalue-todayemissionsvalue);
+        DS(j).todayimpact=max(0,worstcaseemissionsvalue-todayemissionsvalue)/1000000;
     end
 
 
-    DS(j).baselineimpact=max(0,worstcaseemissionsvalue-baselineemissionsvalue);
-    DS(j).lowambitionimpact=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue);
-    DS(j).highambitionimpact=max(0,worstcaseemissionsvalue-highambitionemissionsvalue);
-    DS(j).ceilingambitionimpact=max(0,worstcaseemissionsvalue-ceilingambitionemissionsvalue);
+    DS(j).baselineimpact=max(0,worstcaseemissionsvalue-baselineemissionsvalue)/1000000;
+    DS(j).lowambitionimpact=max(0,worstcaseemissionsvalue-lowambitionemissionsvalue)/1000000;;
+    DS(j).highambitionimpact=max(0,worstcaseemissionsvalue-highambitionemissionsvalue)/1000000;
+    DS(j).ceilingambitionimpact=max(0,worstcaseemissionsvalue-ceilingambitionemissionsvalue)/1000000;
     DS(j).lowambitioncumulativeimpactfrombaseline=max(DS(j).baselineimpact,DS(j).lowambitionimpact);
     DS(j).lowambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).lowambitionimpact);
     DS(j).highambitioncumulativeimpact=max(DS(j).todayimpact,DS(j).highambitionimpact);
@@ -91,6 +91,8 @@ for j=1:261;
     DS(j).ThermalEfficiencyConstant=TEC;
     DS(j).Production=Prod;
     DS(j).clinkertocementratio=C2C;
+    DS(j).UnitsNotes='emissions in Mt CO2-eq; TEC in MJ/t cement; production in tons'
+
 end
 
 mkdir('ImprovedCement_ThermalEfficiency');

@@ -183,7 +183,7 @@ currentadoptionraster=wdpa5min==1 & treecover5min>.025;
 
 isintact=flii5min>.75;
 
-lowadoptionraster=(isintact | wdpa==1) & treecover5min>.025 ;
+lowadoptionraster=(isintact | wdpa5min==1) & treecover5min>.025 ;
 
 %%%%%%%%%%%%%%%%%
 %   Adoption - high   %

@@ -23,8 +23,11 @@ treecoverloss5min=aggregate_rate(treecoverloss30sec,10);
 treecoverlossrate5min=treecoverloss5min./treecover5min;
 
 
-x=load('~/DataProducts/ext/ForestGHGFlux_Harris/GFWForestPosFlux2001_2023_30sec.mat');
-GHGFluxPos30sec=x.GHGFlux;
+
+
+
+
+GHGFluxPos30sec=processgeotiff('inputdatafiles/GFWForestPosFlux2001_2023_30sec.tif');
 GHGFluxPos5min=aggregate_rate(GHGFluxPos30sec,10);
 %%
 
@@ -70,9 +73,11 @@ DataToDrawdownFigures(treecover30sec*100,'','context_treecover30sec',MapsAndData
 
 
 %% Tree cover loss - limited to agriculture
-[long,lat,TreeCoverLoss5min]=processgeotiff('/Users/jsgerber/DataProducts/ext/HansenTreeCover/HansenTreeCoverLoss5min.tif');
-[long,lat,TreeCoverGain5min]=processgeotiff('/Users/jsgerber/DataProducts/ext/HansenTreeCover/HansenTreeCoverGain5min.tif');
-curtisraster5min=processgeotiff('/Users/jsgerber/DataProducts/ext/TreeCoverLossByDriver/FinalClassification.tif');
+
+TreeCoverLoss5min=treecoverloss5min;
+
+
+curtisraster5min=processgeotiff('inputdatafiles/CurtisTCLByDriverClassification.tif');
  % Curtis: 0:5
  % CategoryTitles={
  %     'Zero or Minor Loss',...
@@ -82,9 +87,6 @@ curtisraster5min=processgeotiff('/Users/jsgerber/DataProducts/ext/TreeCoverLossB
  %     'Wildfire',...
  %     'Urbanization'...
  %     }
-TreeCoverBoth5min=TreeCoverLoss5min>.1 & TreeCoverGain5min>.1;
-TreeCoverLoss5min(TreeCoverBoth5min)=0;
-TreeCoverGain5min(TreeCoverBoth5min)=0;
 
 
 tcllimited=TreeCoverLoss5min;

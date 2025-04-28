@@ -197,6 +197,32 @@ mkdir intermediatedatafiles/
 save intermediatedatafiles/WolfProtectedAreaEffectivenessMap PAeffectivenessmap notes
 
 
+% now just splatter onto 30second map
+
+    gadm0_30sec=processgeotiff('/Users/jsgerber/DataProducts/ext/GADM/GADM41/GADM0_A_30sec.tiff');
+
+    g0=getgeo41_g0;
+    gadm0vals=unique(g0.raster0);
+
+    % for each gadm0val, find the modal value from the 5minute wolf map,
+    % and then paint that onto wherever we find that gadm0val on the
+    % 30minute
+
+
+    PAeffectivenessmap30sec=datablank(0,'30sec');
+
+    for j=2:numel(gadm0vals); % start at 2 because of the 0
+        ii=g0.raster0==gadm0vals(j);
+
+        PAEval=mode(PAeffectivenessmap(ii));
+
+        jj=gadm0_30sec==gadm0vals(j);
+
+        PAeffectivenessmap30sec(jj)=PAEval;
+    end
+
+save intermediatedatafiles/WolfProtectedAreaEffectivenessMap30sec.mat -v7.3 PAeffectivenessmap30sec
+
 
 
 

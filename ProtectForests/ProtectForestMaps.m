@@ -4,7 +4,7 @@
 
 
 MapsAndDataFilename='ProtectForestMapsAndData';
-MapsAndDataFilename='';  % if you keep this empty, DataToDrawdownFigures
+%MapsAndDataFilename='';  % if you keep this empty, DataToDrawdownFigures
 %won't make maps
 
 
@@ -20,10 +20,12 @@ treecover5min=aggregate_rate(treecover30sec,10);
 
 treecoverloss30sec=processgeotiff('inputdatafiles/HansenTreeCoverLoss1km.tif');
 treecoverloss5min=aggregate_rate(treecoverloss30sec,10);
+treecoverlossrate30sec=treecoverloss30sec./treecover30sec;
 treecoverlossrate5min=treecoverloss5min./treecover5min;
 
 
-
+CStock30sec=processgeotiff('inputdatafiles/TotalCarbonStock30s.tif');
+landmask30sec=CStock30sec>0;
 
 
 
@@ -41,6 +43,13 @@ jj=mangroves5min>.5;
 treecover5min(ii)=0;
 treecover5min(jj)=0;
 binarypeatormangrove5min=ii | jj;
+
+
+%% 30 second binary peat or mangrove
+
+ii=peatlands30sec>0.5;
+jj=mangroves30sec>0.5;
+binarypeatormangrove30sec=ii | jj;
 
 
 %% Intactness
@@ -68,7 +77,10 @@ DataToDrawdownFigures(treecover5min*100,NSS,'context_treecover',MapsAndDataFilen
 % Here is what it looks like when I write out the high-resolution datafiles
 % in the format for transferring data over to you.  (the NSS argument is
 % empty)
+
+treecover30sec(landmask30sec==0)=nan;
 DataToDrawdownFigures(treecover30sec*100,'','context_treecover30sec',MapsAndDataFilename);
+DataToDrawdownFigures(treecover30sec*100,'','binarylandmask_WRI',MapsAndDataFilename);
 
 
 
@@ -78,7 +90,10 @@ TreeCoverLoss5min=treecoverloss5min;
 
 
 curtisraster5min=processgeotiff('inputdatafiles/CurtisTCLByDriverClassification.tif');
- % Curtis: 0:5
+ 
+curtisraster30sec=disaggregate_rate(curtisraster5min,10);
+
+% Curtis: 0:5
  % CategoryTitles={
  %     'Zero or Minor Loss',...
  %     'Commodity Driven Deforestation',...
@@ -101,6 +116,15 @@ NSS.title='Deforestation for agriculture, 2001-2023';
 NSS.cmap='eggplant';
 NSS.units='fraction of landscape'
 DataToDrawdownFigures(tcllimited,NSS,'Context_Defor_agriculture',MapsAndDataFilename);
+DataToDrawdownFigures(curtisraster5min,'','CurtisRaster_5min',MapsAndDataFilename);
+
+
+
+tcllimited30sec=treecoverloss30sec;
+tcllimited30sec(curtisraster30sec==4)=nan;
+tcllimited30sec(binarypeatormangrove30sec)=nan;
+
+
 
 %%%%%%%%%%
 %% Tree cover loss - limited to non-wildfire
@@ -117,6 +141,8 @@ NSS.cmap='eggplant';
 NSS.units='fraction of landscape'
 DataToDrawdownFigures(tcllimited,NSS,'Context_Defor_nonwildfire',MapsAndDataFilename);
 
+tcllimited30sec(landmask30sec==0)=nan;
+DataToDrawdownFigures(tcllimited30sec,'','TreeCover30sec_Limited_noWildfire_NoMang_NoPeat',MapsAndDataFilename);
 
 
 %%%%%%%%%%%%%%%%%
@@ -135,6 +161,15 @@ NSS.title='Annual emissions from non-wildfire treecover loss, 2001-2023';
 NSS.caxis=[0 10];
 DataToDrawdownFigures(EmissionsInLandscapeHA,NSS,'emissionsflux',MapsAndDataFilename);
 
+% now reproduce datalayer - but in 30sec
+EmissionsInLandscapeHA30sec=GHGFluxPos30sec/22;
+%EmissionsInLandscapeHA(~iiag)=nan;
+EmissionsInLandscapeHA30sec(binarypeatormangrove30sec)=nan;
+EmissionsInLandscapeHA30sec(curtisraster30sec==4)=nan;
+
+
+EmissionsInLandscapeHA30sec(landmask30sec==0)=nan;
+DataToDrawdownFigures(EmissionsInLandscapeHA30sec,'','emissionsflux30sec',MapsAndDataFilename);
 
 %%%%%%%%%%%%%%%%%
 % Effectiveness %
@@ -143,7 +178,7 @@ DataToDrawdownFigures(EmissionsInLandscapeHA,NSS,'emissionsflux',MapsAndDataFile
 
 % Carbon Stock is from data provided by David Gibbs of WRI, it is the data
 % in Harris et al, + Gibbs et al update.  
-CStock30sec=processgeotiff('inputdatafiles/TotalCStock30s.tif');
+CStock30sec=processgeotiff('inputdatafiles/TotalCarbonStock30s.tif');
 CStock5min=processgeotiff('inputdatafiles/TotalCStock5min.tif');
 
 TCLossPercentage=treecoverlossrate5min;
@@ -161,12 +196,34 @@ PAeffectivenessmap=max(PAeffectivenessmap,0);
 Effectiveness=CStock5min.*3.67.*TCLossFractionPerYear5minCurtisLimited.*PAeffectivenessmap/100;
 Effectiveness(binarypeatormangrove5min)=nan;
 
+% now 30 second version
+
+TCLossPercentage30sec=treecoverlossrate30sec;
+TCLossPercentage30sec(TCLossPercentage30sec>1)=1;
+TCLossFractionPerYear30sec=TCLossPercentage30sec/22;
+TCLossFractionPerYear30secCurtisLimited=TCLossFractionPerYear30sec;
+TCLossFractionPerYear30secCurtisLimited(curtisraster30sec==4)=0;
+
+
+load intermediatedatafiles/WolfProtectedAreaEffectivenessMap30sec.mat PAeffectivenessmap30sec
+PAeffectivenessmap30sec=max(PAeffectivenessmap30sec,0);
+
+Effectiveness30sec=CStock30sec.*3.67.*TCLossFractionPerYear30secCurtisLimited.*PAeffectivenessmap30sec/100;
+Effectiveness30sec(binarypeatormangrove30sec)=nan;
+
+
+
+
+
 NSS=getDrawdownNSS;
 NSS.cmap=ExplorerEffectiveness1;
 NSS.units='t CO_2-eq/ha/yr';
 NSS.title='Effectiveness of protecting a ha of land, 2001-2023';
 NSS.caxis=[0 10];
 DataToDrawdownFigures(Effectiveness,NSS,'effectiveness',MapsAndDataFilename);
+
+Effectiveness30sec(landmask30sec==0)=nan;
+DataToDrawdownFigures(Effectiveness30sec,'','effectiveness30sec',MapsAndDataFilename);
 %%
 
 %%%%%%%%%%%%%%%%%
@@ -179,6 +236,14 @@ wdpa5min=processgeotiff('inputdatafiles/raster_wdpa_iucncats_ItoVI_alltouchedFal
 
 currentadoptionraster=wdpa5min==1 & treecover5min>.025;
 
+currentadoptionraster30secbinary=wdpa30sec==1 & treecover30sec>0.025;
+currentadoptionraster30secbinary=single(currentadoptionraster30secbinary);
+
+
+currentadoptionraster30secfloat=treecover30sec;
+currentadoptionraster30secfloat(wdpa30sec~=1)=0;
+
+
 %%%%%%%%%%%%%%%%%
 %   Adoption - low   %
 %%%%%%%%%%%%%%%%%
@@ -186,6 +251,9 @@ currentadoptionraster=wdpa5min==1 & treecover5min>.025;
 isintact=flii5min>.75;
 
 lowadoptionraster=(isintact | wdpa5min==1) & treecover5min>.025 ;
+
+lowadoptionraster30sec=treecover30sec;
+lowadoptionraster30sec (~(flii30sec | wdpa30sec==1)) = 0; 
 
 %%%%%%%%%%%%%%%%%
 %   Adoption - high   %
@@ -196,6 +264,11 @@ highadoptionraster(highadoptionraster<0)=0;
 
 highadoptionraster=max(highadoptionraster,lowadoptionraster);
 
+highadoptionraster30sec=  treecover30sec-plantationraster30sec;
+highadoptionraster30sec(highadoptionraster30sec<0)=0;
+
+highadoptionraster30sec=max(highadoptionraster30sec,lowadoptionraster30sec);
+
 
 %  now map the adoptions
 
@@ -205,15 +278,26 @@ highadoptionraster=max(highadoptionraster,lowadoptionraster);
 
 NSS=getDrawdownNSS;
 NSS.cmap=ExplorerAdoption1;
-NSS.title='Forested land currently under protection'
+NSS.title='Forested land currently under protection';
+NSS.units='need units';
 DataToDrawdownFigures(currentadoptionraster,NSS,'adoptioncurrent',MapsAndDataFilename);
+
+currentadoptionraster30secbinary(landmask30sec==0)=nan;
+DataToDrawdownFigures(currentadoptionraster30secbinary,'','adoptioncurrent_30sec_pseudobinary',MapsAndDataFilename);
+DataToDrawdownFigures(currentadoptionraster30secfloat,'','adoptioncurrent_30sec_float',MapsAndDataFilename);
+
+
+
 
 % low
 
 NSS=getDrawdownNSS;
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Forested land protected under low ambition protection scenario'
+NSS.units='need units';
 DataToDrawdownFigures(lowadoptionraster,NSS,'adoptionlow',MapsAndDataFilename);
+lowadoptionraster30sec(landmask30sec==0)=nan;
+DataToDrawdownFigures(lowadoptionraster30sec,'','lowadoption_30sec',MapsAndDataFilename);
 
 
 % high
@@ -221,7 +305,11 @@ DataToDrawdownFigures(lowadoptionraster,NSS,'adoptionlow',MapsAndDataFilename);
 NSS=getDrawdownNSS;
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Forested land protected under high ambition protection scenario'
+NSS.units='need units';
 DataToDrawdownFigures(highadoptionraster,NSS,'adoptionhigh',MapsAndDataFilename);
+highadoptionraster30sec(landmask30sec==0)=nan;
+DataToDrawdownFigures(highadoptionraster30sec,'','adoptioncurrent_30sec',MapsAndDataFilename);
+
 
 
 %%%%%%%%%%%%%%%%%

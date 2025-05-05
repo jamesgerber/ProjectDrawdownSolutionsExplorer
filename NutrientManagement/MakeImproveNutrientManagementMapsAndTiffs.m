@@ -5,7 +5,9 @@
 % drawdown color ramps that Alex has put together and I am going to get
 % this code under revision control.   
 
-LocationOfMapsFromAvery=['./maps_for_james']
+%LocationOfMapsFromAvery=['./maps_for_james']  - it was this in working
+%directory (in sandbox)
+LocationOfMapsFromAvery='inputdatafiles/'
 
 [long,lat,tmp]=...
     processgeotiff([LocationOfMapsFromAvery '/map1_currentemissions_tco2e.tif']);
@@ -18,6 +20,8 @@ tmp(tmp>3)=3;
 NfertCropAreafrac=tmp;
 NfertCropArea=tmp.*fma;
 
+
+RegionList={'USA','SEAsia'}
 % now should be able to make some plots and tables of all of these badboys.
 
 % % % %% Template from EVcalcs.m
@@ -44,11 +48,11 @@ NSS.figurehandle=nsgfig;
 NSS.cmap='ExplorerEmissions1';
 NSS.title='Emissions from Nutrient Management';
 NSS.units='tons CO_2-eq/ha';
-DataToDrawdownFigures(NfertEmissionsPerHA,NSS,'Emissions_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(NfertEmissionsPerHA,NSS,'Emissions_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 % Context / Auxiliary
-DataToDrawdownFigures(fma,'','HectaresPerPixel','NutrientManagementFigsAndData/','');
-DataToDrawdownFigures(NfertCropAreafrac,'','CropAreaFractionOfGridcell23Crops','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(fma,'','HectaresPerPixel','NutrientManagementFigsAndData/',RegionList);
+DataToDrawdownFigures(NfertCropAreafrac,'','CropAreaFractionOfGridcell23Crops','NutrientManagementFigsAndData/',RegionList);
 
 
 %%
@@ -70,7 +74,7 @@ NSS.title='Emissions avoided per ton N avoided';
 NSS.units='tons CO_2-eq/ton N';
 
 nsg(NfertEmissionsPerUnitSolution,NSS);
-DataToDrawdownFigures(NfertEmissionsPerUnitSolution,NSS,'Effectiveness_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(NfertEmissionsPerUnitSolution,NSS,'Effectiveness_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 
 %%
@@ -110,7 +114,7 @@ NSS.caxis=[0 .1];
 NSS.units='tons N/ha';
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Current adoption of Improved Nutrient Management';
-DataToDrawdownFigures(CurrentAdoption,NSS,'CurrentAdoption_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(CurrentAdoption,NSS,'CurrentAdoption_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 
 
@@ -120,7 +124,7 @@ NSS.caxis=[0 .1];
 NSS.units='tons N/ha';
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Improved Nutrient Management, Low Adoption';
-DataToDrawdownFigures(CumulativeLowAdoption,NSS,'CumulativeLowAdoption_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(CumulativeLowAdoption,NSS,'CumulativeLowAdoption_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 
 NSS=getDrawdownNSS;
@@ -129,7 +133,7 @@ NSS.caxis=[0 .1];
 NSS.units='tons N/ha';
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Improved Nutrient Management, High Adoption';
-DataToDrawdownFigures(CumulativeHighAdoption,NSS,'CumulativeHighAdoption_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(CumulativeHighAdoption,NSS,'CumulativeHighAdoption_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 
 %%
@@ -143,7 +147,7 @@ NSS.caxis=[0 1];
 NSS.units='tons CO_2-eq/ha';
 NSS.cmap=ExplorerImpact1;
 NSS.title='Current impact of Improved Nutrient Management';
-DataToDrawdownFigures(CurrentAdoption.*NfertEmissionsPerUnitSolution,NSS,'CurrentImpact_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(CurrentAdoption.*NfertEmissionsPerUnitSolution,NSS,'CurrentImpact_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 
 NSS=getDrawdownNSS;
@@ -152,7 +156,7 @@ NSS.caxis=[0 1];
 NSS.units='tons CO_2-eq/ha';
 NSS.cmap=ExplorerImpact1;
 NSS.title='Low adoption impact of Improved Nutrient Management';
-DataToDrawdownFigures(CumulativeLowAdoption.*NfertEmissionsPerUnitSolution,NSS,'LowImpact_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(CumulativeLowAdoption.*NfertEmissionsPerUnitSolution,NSS,'LowImpact_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 
 
@@ -162,7 +166,7 @@ NSS.caxis=[0 1];
 NSS.units='tons CO_2-eq/ha';
 NSS.cmap=ExplorerImpact1;
 NSS.title='High adoption impact of Improved Nutrient Management';
-DataToDrawdownFigures(CumulativeHighAdoption.*NfertEmissionsPerUnitSolution,NSS,'HighImpact_nutrman','NutrientManagementFigsAndData/','');
+DataToDrawdownFigures(CumulativeHighAdoption.*NfertEmissionsPerUnitSolution,NSS,'HighImpact_nutrman','NutrientManagementFigsAndData/',RegionList);
 
 
 
@@ -172,7 +176,7 @@ DataToDrawdownFigures(CumulativeHighAdoption.*NfertEmissionsPerUnitSolution,NSS,
 % Bonus maps: Total applied N
 %%%%%%%%%%%%%%%%%%%%%%%%
 
-load N2O_PaperFigs/TotalappliedN_SavedFigureData  % data will be in OS.Data
+load inputdatafiles/N2O_PaperFigs/TotalappliedN_SavedFigureData  % data will be in OS.Data
 NSSsave=NSS;
 NSS.figurehandle=nsgfig;
 NSS=getDrawdownNSS;
@@ -181,4 +185,4 @@ NSS.caxis=[0 300];
 NSS.cmap='eggplant';
 NSS.units='kg N / ha';
 
-DataToDrawdownFigures(OS.Data,NSS,'Contextmap_TotalAppliedNFertilizer_nutrman','NutrientManagementFigsAndData','');
+DataToDrawdownFigures(OS.Data,NSS,'Contextmap_TotalAppliedNFertilizer_nutrman','NutrientManagementFigsAndData',RegionList);

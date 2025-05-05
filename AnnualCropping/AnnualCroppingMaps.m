@@ -11,6 +11,7 @@ raster0=single(raster0);
 raster(raster==-32767)=nan;
 raster0(raster0==-32767)=nan;
 
+RegionList={'USA','SEAsia'};
 
 NSS=getDrawdownNSS
 NSS.units='tons CO_2-eq/ha';
@@ -18,7 +19,7 @@ NSS.title='Soil Carbon Debt';
 NSS.DisplayNotes={'Sanderman et al, PNAS 2017'}
 NSS.caxis=[0 400];
 
-DataToDrawdownFigures(single(raster0-raster)*3.67,NSS,'Context_SoilCarbonDebt_C02eqha','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(single(raster0-raster)*3.67,NSS,'Context_SoilCarbonDebt_C02eqha','ImproveAnnualCroppingMapsAndData',RegionList);
 
 %% land in conservation agriculture - first version (Prestele):
 [croplandraster,pastureraster]=get2015croppasturearea;
@@ -37,9 +38,9 @@ NSS.cmap=ExplorerAdoption1;
 NSS.caxis=[0 1];
 NSS.logicalinclude=croplandraster>0.2;
 NSS.DisplayNotes={'Data from Prestele et al'};
-DataToDrawdownFigures(BaselineCAEstimate,NSS,'CurrentAdoptionPrestele','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(BaselineCAEstimate,NSS,'CurrentAdoptionPrestele','ImproveAnnualCroppingMapsAndData',RegionList);
 
-DataToDrawdownFigures(croplandraster,'','CroplandRaster_AuxiliaryData','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(croplandraster,'','CroplandRaster_AuxiliaryData','ImproveAnnualCroppingMapsAndData',RegionList);
 
 %% land in conservation agriculture - second version (Kassam)
 a=readgenericcsv('inputdatafiles/KassamData.csv');
@@ -151,7 +152,7 @@ NSS.Title=['Land in Improved Annual Cropping'];
 NSS.Units=['Mha'];
 NSS.cmap=ExplorerAdoption1;
 NSS.DisplayNotes={'Data from Kassam et al, 2022'};
-DataToDrawdownFigures(CAareaha,NSS,'CurrentAdoptionKassam','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(CAareaha,NSS,'CurrentAdoptionKassam','ImproveAnnualCroppingMapsAndData',RegionList);
 
 
 %%
@@ -161,7 +162,7 @@ NSS.Units=['%'];
 NSS.cmap=ExplorerAdoption1;
 NSS.caxis=[0 100]
 NSS.DisplayNotes={'Data from Kassam et al, 2022'};
-DataToDrawdownFigures(CAareafraction*100,NSS,'CurrentAdoptionKassamFraction','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(CAareafraction*100,NSS,'CurrentAdoptionKassamFraction','ImproveAnnualCroppingMapsAndData',RegionList);
 
 
 
@@ -175,7 +176,7 @@ NSS.Title=['Impact of adoption of Improved Annual Cropping'];
 NSS.Units=['Mt CO_2-eq/yr'];
 NSS.cmap=ExplorerImpact1;
 NSS.DisplayNotes={'Data from Kassam et al, 2022'};
-DataToDrawdownFigures(currentimpact,NSS,'CurrentImpact','ImproveAnnualCroppingMapsAndData');
+DataToDrawdownFigures(currentimpact,NSS,'CurrentImpact','ImproveAnnualCroppingMapsAndData',RegionList);
 
 
 %lowambitionimpact=min(CAarea,totaareamap*.*1.80;

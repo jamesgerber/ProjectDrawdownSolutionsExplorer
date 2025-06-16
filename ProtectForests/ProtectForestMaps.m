@@ -28,7 +28,7 @@ treecoverlossrate5min=treecoverloss5min./treecover5min;
 
 
 GHGFluxPos30sec=processgeotiff('inputdatafiles/GFWForestPosFlux2001_2023_30sec.tif');
-GHGFluxPos5min=aggregate_rate(GHGFluxPos30sec,10);
+GHGFluxPos5min=aggregate_rate(GHGFluxPos30sec,10,'hidden');
 %%
 
 %  Now excluding peatlands and mangroves from the tree cover map.  I'm only

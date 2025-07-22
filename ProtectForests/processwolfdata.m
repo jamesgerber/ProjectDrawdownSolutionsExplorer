@@ -122,6 +122,13 @@ for j=1:numel(b.Code);
         longeffectiveness(j)=nanmean(tempvect);
     end
 end
+%% quick CSV
+
+clear NS
+NS.code=b.Code;
+NS.effectiveness=longeffectiveness;
+NS.isSEAsia=double(ismember(b.Code,SEAsia11))
+sov2csv(NS,'intermediatedatafiles/WolfProtectionTable.csv');
 
 %% now map
 PAeffectivenessmap=datablank;

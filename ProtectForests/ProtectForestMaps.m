@@ -5,8 +5,11 @@
 
 MapsAndDataFilename='ProtectForestMapsAndData';
 MapsAndDataFilename='';  % if you keep this empty, DataToDrawdownFigures
-%won't make maps
+%won't do anything
 
+BaseNSS=getDrawdownNSS; % this will make maps
+BaseNSS.plotflag='off'; %if you set this to off, DataToDrawdownFigures
+%won't make maps
 
 % load some data at 30 second, make 5 minute versions.
 mangroves30sec=processgeotiff('inputdatafiles/mangroves_final.tif');
@@ -22,6 +25,7 @@ treecoverloss30sec=processgeotiff('inputdatafiles/HansenTreeCoverLoss1km.tif');
 treecoverloss5min=aggregate_rate(treecoverloss30sec,10);
 treecoverlossrate5min=treecoverloss5min./treecover5min;
 
+clear treecoverloss30sec
 
 
 
@@ -55,7 +59,7 @@ plantationraster5min=aggregate_rate(plantationraster30sec,10);
 
 % first a context map:  treecover, masking out area
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap='greens_deep';
 NSS.caxis=[0 100];
 NSS.title='Percent tree cover 2000 (excluding mangrove and peatland)';
@@ -102,6 +106,13 @@ NSS.cmap='eggplant';
 NSS.units='fraction of landscape'
 DataToDrawdownFigures(tcllimited,NSS,'Context_Defor_agriculture',MapsAndDataFilename);
 
+
+BinaryExcludeFromForestsOnMinSoil=binarypeatormangrove5min | ~iiag;
+DataToDrawdownFigures(BinaryExcludeFromForestsOnMinSoil,'','ExcludeFromForests_PeatMangFire',MapsAndDataFilename);
+
+
+
+
 %%%%%%%%%%
 %% Tree cover loss - limited to non-wildfire
 %%%%%%%%%%
@@ -128,7 +139,7 @@ EmissionsInLandscapeHA=GHGFluxPos5min/22;
 EmissionsInLandscapeHA(binarypeatormangrove5min)=nan;
 EmissionsInLandscapeHA(curtisraster5min==4)=nan;
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerEmissions1;
 NSS.units='t CO_2-eq/ha/yr';
 NSS.title='Annual emissions from non-wildfire treecover loss, 2001-2023';
@@ -143,7 +154,7 @@ DataToDrawdownFigures(EmissionsInLandscapeHA,NSS,'emissionsflux',MapsAndDataFile
 
 % Carbon Stock is from data provided by David Gibbs of WRI, it is the data
 % in Harris et al, + Gibbs et al update.  
-CStock30sec=processgeotiff('inputdatafiles/TotalCStock30s.tif');
+CStock30sec=processgeotiff('inputdatafiles/TotalCarbonStock30s.tif');
 CStock5min=processgeotiff('inputdatafiles/TotalCStock5min.tif');
 
 TCLossPercentage=treecoverlossrate5min;
@@ -161,7 +172,7 @@ PAeffectivenessmap=max(PAeffectivenessmap,0);
 Effectiveness=CStock5min.*3.67.*TCLossFractionPerYear5minCurtisLimited.*PAeffectivenessmap/100;
 Effectiveness(binarypeatormangrove5min)=nan;
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerEffectiveness1;
 NSS.units='t CO_2-eq/ha/yr';
 NSS.title='Effectiveness of protecting a ha of land, 2001-2023';
@@ -179,6 +190,15 @@ wdpa5min=processgeotiff('inputdatafiles/raster_wdpa_iucncats_ItoVI_alltouchedFal
 
 currentadoptionraster=wdpa5min==1 & treecover5min>.025;
 
+currentadoptionraster30sec=treecover30sec;
+currentadoptionraster30sec(wdpa30sec==0)=0;
+currentadoptionraster30sec(peatlands30sec>0.5)=0;
+binarylandmask=processgeotiff('ProtectForestMapsAndData/data_geotiff/binarylandmask_WRI_data.tif');
+
+currentadoptionraster30sec(isnan(binarylandmask))=nan;
+DataToDrawdownFigures(currentadoptionraster30sec,'','adoptioncurrent_30sec_excludepeatlands',MapsAndDataFilename);
+
+
 %%%%%%%%%%%%%%%%%
 %   Adoption - low   %
 %%%%%%%%%%%%%%%%%
@@ -186,6 +206,19 @@ currentadoptionraster=wdpa5min==1 & treecover5min>.025;
 isintact=flii5min>.75;
 
 lowadoptionraster=(isintact | wdpa5min==1) & treecover5min>.025 ;
+
+isintact30sec=flii30sec>.75;
+
+lowadoptionraster30sec=treecover30sec;  % start with all treecover
+lowadoptionraster30sec(~isintact30sec)=0; % only intact forest
+lowadoptionraster30sec(peatlands30sec>0.5)=0;
+lowadoptionraster30sec=max(lowadoptionraster30sec,currentadoptionraster30sec);
+lowadoptionraster30sec(isnan(binarylandmask))=nan;
+
+DataToDrawdownFigures(lowadoptionraster30sec,'','adoptionlow_30sec_excludepeatlands',MapsAndDataFilename);
+
+
+
 
 %%%%%%%%%%%%%%%%%
 %   Adoption - high   %
@@ -196,6 +229,15 @@ highadoptionraster(highadoptionraster<0)=0;
 
 highadoptionraster=max(highadoptionraster,lowadoptionraster);
 
+highadoptionraster30sec=treecover30sec-plantationraster30sec;
+highadoptionraster30sec(peatlands30sec>0.5)=0;
+highadoptionraster30sec=max(highadoptionraster30sec,lowadoptionraster30sec);
+
+highadoptionraster30sec(isnan(binarylandmask))=nan;
+DataToDrawdownFigures(highadoptionraster30sec,'','adoptionhigh_30sec_excludepeatlands',MapsAndDataFilename);
+
+DataToDrawdownFigures(peatlands30sec>0.5,'','peatland_binary_30s',MapsAndDataFilename);
+
 
 %  now map the adoptions
 
@@ -203,14 +245,14 @@ highadoptionraster=max(highadoptionraster,lowadoptionraster);
 
 % current
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Forested land currently under protection'
 DataToDrawdownFigures(currentadoptionraster,NSS,'adoptioncurrent',MapsAndDataFilename);
 
 % low
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Forested land protected under low ambition protection scenario'
 DataToDrawdownFigures(lowadoptionraster,NSS,'adoptionlow',MapsAndDataFilename);
@@ -218,7 +260,7 @@ DataToDrawdownFigures(lowadoptionraster,NSS,'adoptionlow',MapsAndDataFilename);
 
 % high
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerAdoption1;
 NSS.title='Forested land protected under high ambition protection scenario'
 DataToDrawdownFigures(highadoptionraster,NSS,'adoptionhigh',MapsAndDataFilename);
@@ -229,21 +271,21 @@ DataToDrawdownFigures(highadoptionraster,NSS,'adoptionhigh',MapsAndDataFilename)
 %%%%%%%%%%%%%%%%%
 % Impact = Effectiveness * Adoption
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerImpact1;
 NSS.title='Avoided emissions of current forest protection';
 NSS.units='t CO_2-eq/ha/yr';
 NSS.caxis=[0 3];
 DataToDrawdownFigures(Effectiveness.*currentadoptionraster,NSS,'ImpactCurrent',MapsAndDataFilename);
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerImpact1;
 NSS.title='Avoided emissions of low-ambition forest protection';
 NSS.units='t CO_2-eq/ha/yr';
 NSS.caxis=[0 5];
 DataToDrawdownFigures(Effectiveness.*lowadoptionraster,NSS,'ImpactLow',MapsAndDataFilename);
 
-NSS=getDrawdownNSS;
+NSS=BaseNSS;
 NSS.cmap=ExplorerImpact1;
 NSS.title='Avoided emissions of high-ambition forest protection';
 NSS.units='t CO_2-eq/ha/yr';

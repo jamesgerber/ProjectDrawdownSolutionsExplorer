@@ -7,7 +7,7 @@ wd='~/DrawdownSolutions/ImproveRice/';
 SEAsiaWorkingDirectory='~/SEAsiaProject';
 
 RegionList={'SEAsia'};
-RegionList=''
+%RegionList=''
 
 cd(SEAsiaWorkingDirectory);
 addpath('~/SEAsiaProject/codes/SEAsiaProject/','-end');
@@ -49,6 +49,7 @@ TotalRiceEmissionsTonsCO2eqPerHa=CH4CurrentEmissions + N2OAWDEmissions + N2OCFEm
 cd(wd);
 
 MapsAndDataFilename='ImproveRiceProductionMapsAndData';
+%MapsAndDataFilename='';
 BaseNSS=getDrawdownNSS; % this will make maps
 %BaseNSS.plotflag='off'; %if you set this to off, DataToDrawdownFigures
 %won't make maps
@@ -66,6 +67,7 @@ NSS.cbarvisible='on';
 NSS.units='fraction of land';
 WetRiceArea(WetRiceArea==0)=nan;
 NSS.logicalinclude=WetRiceArea>0.01;
+WetRiceArea(WetRiceArea<0.01)=nan;
 DataToDrawdownFigures(WetRiceArea,NSS,'floodedricearea',MapsAndDataFilename,RegionList);
 
 
@@ -79,6 +81,7 @@ NSS.title='Methane emissions from paddy rice cultivation';
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
 NSS.logicalinclude=WetRiceArea>0.01;
+CH4CurrentEmissions(WetRiceArea<0.01)=nan;
 
 DataToDrawdownFigures(CH4CurrentEmissions.*WetRiceArea,NSS,'methaneemissions',MapsAndDataFilename,RegionList);
 
@@ -89,6 +92,7 @@ NSS.caxis=[0 5];
 NSS.title='Methane emissions from paddy rice cultivation';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
+NSS.logicalinclude=WetRiceArea>0.01;
 NSS.units='CO_2-eq/ha';
 
 DataToDrawdownFigures(CH4CurrentEmissions.*WetRiceArea,NSS,'methaneemissions_tightColorAxis',MapsAndDataFilename,RegionList);
@@ -102,6 +106,7 @@ NSS.title='N2O emissions from paddy rice cultivation';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
+NSS.logicalinclude=WetRiceArea>0.01;
 
 DataToDrawdownFigures((N2OAWDEmissions + N2OCFEmissions).*WetRiceArea,NSS,'n2oemissions',MapsAndDataFilename,RegionList);
 
@@ -112,6 +117,7 @@ NSS.title='Emissions from paddy rice cultivation';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
+NSS.logicalinclude=WetRiceArea>0.01;
 
 DataToDrawdownFigures((CH4CurrentEmissions+N2OAWDEmissions + N2OCFEmissions).*WetRiceArea,NSS,'totalpaddyriceemissions',MapsAndDataFilename,RegionList);
 
@@ -123,6 +129,7 @@ NSS.title='Methane emissions from paddy rice cultivation';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
+NSS.logicalinclude=WetRiceArea>0.01;
 
 DataToDrawdownFigures(CH4CurrentEmissions.*WetRiceArea,NSS,'methaneemissions',MapsAndDataFilename,RegionList);
 
@@ -134,6 +141,7 @@ NSS.title='Methane emissions decrease with uptake of AWD';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
+NSS.logicalinclude=WetRiceArea>0.01;
 
 DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*WetRiceArea,NSS,'methaneemissionsdecrease',MapsAndDataFilename,RegionList);
 
@@ -144,6 +152,7 @@ NSS.title='Methane emissions decrease with uptake of AWD';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
+NSS.logicalinclude=WetRiceArea>0.01;
 
 DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*WetRiceArea,NSS,'methaneemissionsdecrease_tightColorAxis',MapsAndDataFilename,RegionList);
 
@@ -156,18 +165,19 @@ NSS.title='Methane emissions decrease with uptake of AWD';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
+NSS.logicalinclude=WetRiceArea>0.01;
 
 DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*WetRiceArea,NSS,'methaneemissionsdecrease_EmissionsColorbar',MapsAndDataFilename,RegionList);
 
 NSS=BaseNSS
 NSS.cmap=ExplorerAdoption1;
 NSS.caxis=[0 100];
-NSS.title='Estimated adoption of advanced water management';
+NSS.title='Current adoption of advanced water management';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='percent of harvested paddy rice area';
-NSS.logicalinclude=isfinite(WetRiceArea);
-
+NSS.logicalinclude=WetRiceArea>0.01;
+CurrentAWDUptake(isnan(WetRiceArea))=nan;
 DataToDrawdownFigures(CurrentAWDUptake*100,NSS,'AdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
 
 
@@ -178,9 +188,61 @@ NSS.title='Effectiveness of advanced water management';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
-NSS.logicalinclude=isfinite(WetRiceArea);
+NSS.logicalinclude=WetRiceArea>0.01;
+CH4EmissionsIntensityImprovementWithAWDUptake(isnan(WetRiceArea))=nan;
 
 DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake,NSS,'EffectivenessOfAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+
+%% Current adoption
+% BoUptake(isnan(WetRiceArea))=nan;
+% 
+% NSS=BaseNSS
+% NSS.cmap=ExplorerAdoption1;
+% NSS.caxis=[0 100];
+% NSS.title='Estimated adoption of advanced water management';
+% %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
+% NSS.cbarvisible='on';
+% NSS.units='percent of harvested paddy rice area';
+% NSS.logicalinclude=WetRiceArea>0.01;
+% CurrentAWDUptake(isnan(WetRiceArea))=nan;
+% DataToDrawdownFigures(BoUptake*100,NSS,'HighAmbitionAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+% 
+
+
+%% High-ambition adoption
+BoUptake(isnan(WetRiceArea))=nan;
+
+NSS=BaseNSS
+NSS.cmap=ExplorerAdoption1;
+NSS.caxis=[0 100];
+NSS.title='Estimated high ambition adoption of advanced water management';
+%NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
+NSS.cbarvisible='on';
+NSS.units='percent of harvested paddy rice area';
+NSS.logicalinclude=WetRiceArea>0.01;
+CurrentAWDUptake(isnan(WetRiceArea))=nan;
+DataToDrawdownFigures(BoUptake*100,NSS,'HighAmbitionAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+
+
+% current  impact
+NSS=BaseNSS
+NSS.cmap=ExplorerImpact1;
+NSS.caxis=[0 10];
+NSS.title='Impact of current adoption of advanced water management';
+%NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
+NSS.cbarvisible='on';
+NSS.units='CO_2-eq/ha';
+NSS.logicalinclude=WetRiceArea>0.01;
+
+DelUptake=BoUptake-CurrentAWDUptake;
+DelUptake(DelUptake<0)=0;
+CurrentAWDUptake(isnan(WetRiceArea))=nan;
+
+DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*CurrentAWDUptake.*WetRiceArea,NSS,'CurrentadoptionImpactOfAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+NSS.caxis=[0 5];
+DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*CurrentAWDUptake.*WetRiceArea,NSS,'CurrentadoptionImpactOfAdoptionOfNoncontinuousFlooding_tighterColorAxis',MapsAndDataFilename,RegionList);
+
+
 
 
 %% Impact of High-ambition adoption
@@ -188,18 +250,20 @@ DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake,NSS,'Effecti
 NSS=BaseNSS
 NSS.cmap=ExplorerImpact1;
 NSS.caxis=[0 10];
-NSS.title='Impact of adoption of advanced water management';
+NSS.title='Impact of high-ambition adoption of advanced water management';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='CO_2-eq/ha';
-NSS.logicalinclude=isfinite(WetRiceArea);
+NSS.logicalinclude=WetRiceArea>0.01;
 
 DelUptake=BoUptake-CurrentAWDUptake;
 DelUptake(DelUptake<0)=0;
+DelUptake(isnan(WetRiceArea))=nan;
 
-DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*DelUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
-
+DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*BoUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
 NSS.caxis=[0 5];
-DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*DelUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtightColorAxis',MapsAndDataFilename,RegionList);
-DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*DelUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtightColorAxis',MapsAndDataFilename,{'SEAsia'});
+DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*BoUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtightColorAxis',MapsAndDataFilename,RegionList);
+%DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*DelUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtightColorAxis',MapsAndDataFilename,{'SEAsia'});
+
+
 

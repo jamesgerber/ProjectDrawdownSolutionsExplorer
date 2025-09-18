@@ -2,6 +2,7 @@
 % some notes:
 % This wont run unless you've already run processwolfdata
 
+set(0,'DefaultFigureVisible','off');
 
 MapsAndDataFilename='ProtectForestMapsAndData';
 MapsAndDataFilename='';  % if you keep this empty, DataToDrawdownFigures
@@ -293,5 +294,6 @@ NSS.caxis=[0 10];
 DataToDrawdownFigures(Effectiveness.*highadoptionraster,NSS,'ImpactHigh',MapsAndDataFilename);
 
 
+set(0,'DefaultFigureVisible','on');
 
 

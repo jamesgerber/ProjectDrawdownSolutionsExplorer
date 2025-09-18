@@ -4,14 +4,15 @@
 
 wd='~/DrawdownSolutions/ImproveRice/';
 
-SEAsiaWorkingDirectory='~/SEAsiaProject';
+%SEAsiaWorkingDirectory='~/SEAsiaProject';
 
 RegionList={'SEAsia'};
-%RegionList=''
-
-cd(SEAsiaWorkingDirectory);
-addpath('~/SEAsiaProject/codes/SEAsiaProject/','-end');
-load intermediatedatalayers/rice/Year2020RiceCH4eEmissions.mat area2020      
+RegionList=''
+MapsAndDataFilename='ImproveRiceProductionMapsAndDataRevB';
+MapsAndDataFilename='';
+%cd(SEAsiaWorkingDirectory);
+%addpath('~/SEAsiaProject/codes/SEAsiaProject/','-end');
+%load intermediatedatalayers/rice/Year2020RiceCH4eEmissions.mat area2020      
 
 [CH4CurrentEmissions,CurrentAWDUptake,BoUptake,...
     CH4EmissionsIntensityImprovementWithAWDUptake,WetRiceArea,DryRiceArea]=calculatepotentialuptakerice;
@@ -24,8 +25,11 @@ load intermediatedatalayers/rice/Year2020RiceCH4eEmissions.mat area2020
 % WetRiceArea  - area of rice (fraction of grid cell) that is irrigated or flooded paddy
 % DryRiceArea - upland rice
 [N2OEmissionsPerHA_AWD_CO2eq,N2OEmissionsPerHA_CF_CO2eq,fractionhaperpixel,...
-    fractionAWD,fractionCF,EmissionsPerHA_AWD_CO2eq_HighAdoption,EmissionsPerHA_CF_CO2eq_HighAdoption]=...
-    ReturnFloodedRiceN2OEmissions;
+    fractionAWD,fractionCF,EmissionsPerHA_AWD_CO2eq_HighAdoption,...
+    EmissionsPerHA_CF_CO2eq_HighAdoption,EmissionsAvoidedPerHA_CF_CO2eq,...
+    EmissionsAvoidedPerHA_AWD_CO2eq,EffectivenessNutrMan_tonsCO2_eqPerTonNavoided,...
+    CurrentAdoption_TonsperHa,HighAdoption_TonsperHA]=ReturnFloodedRiceN2OEmissions;
+
 
 % Return CO2eq emissions from N application to Flooded Rice
 % EmissionsPerHA_AWD_CO2eq  - N2O emissions per cultivated ha if AWD
@@ -36,6 +40,11 @@ load intermediatedatalayers/rice/Year2020RiceCH4eEmissions.mat area2020
 % EmissionsPerHA_AWD_CO2eq_HighAdoption -  N2O emissions per cultivated ha
 % if AWD (high adoption of solution)
 % EmissionsPerHA_CF_CO2eq_HighAdoption
+% EmissionsAvoidedPerHA_CF_CO2eq - emissions avoided from solution uptake
+% EmissionsAvoidedPerHA_AWD_CO2eq - emissions avoided from solution uptake
+% EffectivenessNutrMan_tonsCO2_eqPerTonNavoided - Effectiveness of decrease of 1 ton N2O emissions
+% CurrentAdoption_TonsperHa - Current adoption, tons per ha
+% HighAdoption_TonsperHA - High adoption, tons per ha
 
 % TotalRiceEmissionsTonsCO2eqperha=
 N2OAWDEmissions=N2OEmissionsPerHA_AWD_CO2eq.*fractionAWD; 
@@ -48,14 +57,10 @@ TotalRiceEmissionsTonsCO2eqPerHa=CH4CurrentEmissions + N2OAWDEmissions + N2OCFEm
 
 cd(wd);
 
-MapsAndDataFilename='ImproveRiceProductionMapsAndData';
-%MapsAndDataFilename='';
+
 BaseNSS=getDrawdownNSS; % this will make maps
 %BaseNSS.plotflag='off'; %if you set this to off, DataToDrawdownFigures
 %won't make maps
-
-
-
 
 
 NSS=BaseNSS
@@ -69,6 +74,20 @@ WetRiceArea(WetRiceArea==0)=nan;
 NSS.logicalinclude=WetRiceArea>0.01;
 WetRiceArea(WetRiceArea<0.01)=nan;
 DataToDrawdownFigures(WetRiceArea,NSS,'floodedricearea',MapsAndDataFilename,RegionList);
+
+NSS=BaseNSS
+NSS.cmap='white_blue_green';
+NSS.caxis=[0 2];
+NSS.title='Paddy rice area';
+%NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
+NSS.cbarvisible='on';
+NSS.froufrou=[0 1];
+NSS.units='fraction of land harvested per year';
+WetRiceArea(WetRiceArea==0)=nan;
+NSS.logicalinclude=WetRiceArea>0.01;
+WetRiceArea(WetRiceArea<0.01)=nan;
+DataToDrawdownFigures(WetRiceArea,NSS,'floodedricearea_looseaxis',MapsAndDataFilename,RegionList);
+
 
 
 WetRiceAreaBinary=WetRiceArea>0.01;
@@ -136,7 +155,7 @@ DataToDrawdownFigures(CH4CurrentEmissions.*WetRiceArea,NSS,'methaneemissions',Ma
 
 NSS=BaseNSS
 NSS.cmap='eggplant';
-NSS.caxis=[0 10];
+NSS.caxis=[0 2];
 NSS.title='Methane emissions decrease with uptake of AWD';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
@@ -193,6 +212,12 @@ CH4EmissionsIntensityImprovementWithAWDUptake(isnan(WetRiceArea))=nan;
 
 DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake,NSS,'EffectivenessOfAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
 
+% Calculation Adoption:
+% % 
+% % zero adoption of AWD is easy - assume continuous flooding.
+% % zero adoption of Nutrient management - not easy
+
+
 %% Current adoption
 % BoUptake(isnan(WetRiceArea))=nan;
 % 
@@ -215,13 +240,32 @@ BoUptake(isnan(WetRiceArea))=nan;
 NSS=BaseNSS
 NSS.cmap=ExplorerAdoption1;
 NSS.caxis=[0 100];
+NSS.title='Estimated best practice (Bo et al) adoption of advanced water management';
+%NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
+NSS.cbarvisible='on';
+NSS.units='percent of harvested paddy rice area';
+NSS.logicalinclude=WetRiceArea>0.01;
+CurrentAWDUptake(isnan(WetRiceArea))=nan;
+DataToDrawdownFigures(BoUptake*100,NSS,'EstimatedBestPractice_Boetal_AdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+
+
+%% High-ambition adoption
+BoUptake(isnan(WetRiceArea))=nan;
+
+NSS=BaseNSS
+NSS.cmap=ExplorerAdoption1;
+NSS.caxis=[0 100];
 NSS.title='Estimated high ambition adoption of advanced water management';
 %NSS.DisplayNotes={'Data: Hansen et al.','Downloaded Nov 2024'}
 NSS.cbarvisible='on';
 NSS.units='percent of harvested paddy rice area';
 NSS.logicalinclude=WetRiceArea>0.01;
 CurrentAWDUptake(isnan(WetRiceArea))=nan;
-DataToDrawdownFigures(BoUptake*100,NSS,'HighAmbitionAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+
+HighAmbitionAdoption=nanmax(CurrentAWDUptake,BoUptake);
+DataToDrawdownFigures(HighAmbitionAdoption*100,NSS,'HighAmbitionAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+
+
 
 
 % current  impact
@@ -260,10 +304,76 @@ DelUptake=BoUptake-CurrentAWDUptake;
 DelUptake(DelUptake<0)=0;
 DelUptake(isnan(WetRiceArea))=nan;
 
-DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*BoUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
+DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*HighAmbitionAdoption.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFlooding',MapsAndDataFilename,RegionList);
 NSS.caxis=[0 5];
-DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*BoUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtightColorAxis',MapsAndDataFilename,RegionList);
+DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*HighAmbitionAdoption.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtightColorAxis',MapsAndDataFilename,RegionList);
 %DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*DelUptake.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtightColorAxis',MapsAndDataFilename,{'SEAsia'});
+NSS.caxis=[0 2];
+DataToDrawdownFigures(CH4EmissionsIntensityImprovementWithAWDUptake.*HighAmbitionAdoption.*WetRiceArea,NSS,'HighAmbitionImpactOfAdoptionOfNoncontinuousFloodingtight2ColorAxis',MapsAndDataFilename,RegionList);
+
+
+
+MapsAndDataFilename='ImproveRiceProductionMapsAndDataRevB'
+
+
+%% Nutrient Management Paddy Rice Figures
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Effectiveness
+%%%%%%%%%%%%%%%%%%%%%%%%
+nsgfig=figure;
+
+NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
+NSS.caxis=[0 9];
+NSS.cmap=ExplorerEffectiveness1;
+NSS.title='Emissions avoided per ton N avoided';
+NSS.units='tons CO_2-eq/ton N';
+
+DataToDrawdownFigures(EffectivenessNutrMan_tonsCO2_eqPerTonNavoided,NSS,'Effectiveness_nutrman_onpaddyrice',MapsAndDataFilename,RegionList);
+
+
+
+NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
+NSS.caxis=[0 .1];
+NSS.units='tons N/ha';
+NSS.cmap=ExplorerAdoption1;
+NSS.title='Current adoption of Improved Nutrient Management';
+DataToDrawdownFigures(CurrentAdoption_TonsperHa,NSS,'CurrentAdoption_nutrman_onpaddyrice',MapsAndDataFilename,RegionList);
+
+
+
+NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
+NSS.caxis=[0 .1];
+NSS.units='tons N/ha';
+NSS.cmap=ExplorerAdoption1;
+NSS.title='Improved Nutrient Management, High Adoption';
+DataToDrawdownFigures(HighAdoption_TonsperHA,NSS,'CumulativeHighAdoption_nutrman_onpaddyrice',MapsAndDataFilename,RegionList);
+
+
+
+NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
+NSS.caxis=[0 1];
+NSS.units='tons CO_2-eq/ha';
+NSS.cmap=ExplorerImpact1;
+NSS.title='Current impact of Improved Nutrient Management';
+DataToDrawdownFigures(CurrentAdoption_TonsperHa.*EffectivenessNutrMan_tonsCO2_eqPerTonNavoided,NSS,'CurrentImpact_nutrman_onpaddyrice',MapsAndDataFilename,RegionList);
+
+
+
+NSS=getDrawdownNSS;
+NSS.figurehandle=nsgfig;
+NSS.caxis=[0 1];
+NSS.units='tons CO_2-eq/ha';
+NSS.cmap=ExplorerImpact1;
+NSS.title='High adoption impact of Improved Nutrient Management';
+DataToDrawdownFigures(HighAdoption_TonsperHA.*EffectivenessNutrMan_tonsCO2_eqPerTonNavoided,NSS,'HighImpact_nutrman_onpaddyrice',MapsAndDataFilename,RegionList);
+
+
+
+
 
 
 

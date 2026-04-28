@@ -5,3 +5,8 @@
 figures/
 ./*
 *.key
+*.png
+*data_geotiff*
+*figdata.mat
+MapsAndData*
+*.tif*

@@ -36,7 +36,7 @@ DrawdownMatlabPreferences;
 %  ImpactLow = Effectiveness*AdoptionLow
 %  ImpactHigh= Effectiveness*AdoptionHigh
 
-
+warndlg(' currently changed because I was testing different input sources for data (ember and OWID)')
 
 
 EffectivenessMap=datablank;
@@ -51,6 +51,10 @@ ImpactMapHigh=datablank;
 gpvkmEV=datablank; % these are nice for intermediate checks
 gpvkmICE=datablank;  
 clear DS;  % data structure
+
+warndlg('used W_ICE of 120, spreadsheet currently has 118.4 ... it seems like I took the 20 year instead of the 100yr')
+
+
 for j=1:263;
     [g0,ii]=getgeo41_g0(j);
     ISO=g0.gadm0codes{1};
@@ -59,9 +63,11 @@ for j=1:263;
     Ncars=ReturnNumCars(ISO);
     Distance=ReturnVkmPerCar(ISO);
     etaEV=EVUptake(ISO);
-    W_EV=ReturnCO2PerkmEV(ISO);
+%    W_EV=ReturnCO2PerkmEV_ember_test(ISO);
+    W_EV=ReturnCO2PerkmEV_ember_test(ISO);
     W_ICE=120;% ReturnCO2PerkmICE(ISO) - global average (sum of C5:C10 cars status quo emissions) divided by 1.5 to get vkm
     % 120 is gCO2 per passenger km.
+
 
     Distancepkm=Distance*1.5;
     W_EVpkm=W_EV/1.5;
@@ -95,10 +101,12 @@ DS(j).ImpactLow=Effectiveness*0.44*Ncars*Distancepkm/1e12;
 DS(j).ImpactHigh=Effectiveness*0.80*Ncars*Distancepkm/1e12;
 end
 
-mkdir('ElectricCarsFigsAndData');
-sov2csv(vos2sov(DS),'ElectricCarsFigsAndData/ElectricCarsMappingData.csv');
-%
+FigandDataDir='ElectricCarsFigsAndDataEmberTest/'
 
+
+mkdir(FigandDataDir);
+sov2csv(vos2sov(DS),[FigandDataDir 'ElectricCarsMappingData.csv']);
+%
 
 %% Effectiveness
 nsgfig=figure;
@@ -108,7 +116,7 @@ NSS.units='g CO_2-eq/pkm';
 NSS.title='Current emissions benefit of Electric Cars'
 NSS.cmap=ExplorerEffectivenessDiverging1;
 NSS.caxis=[-80 80]
-DataToDrawdownFigures(EffectivenessMap,NSS,'Effectiveness_ElectricCars','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(EffectivenessMap,NSS,'Effectiveness_ElectricCars',FigandDataDir,'');
 
 %% Adoption
 NSS=getDrawdownNSS;
@@ -117,7 +125,7 @@ NSS.units='Mpkm/yr';
 NSS.title='Adoption of Electric Cars'
 NSS.cmap=ExplorerAdoption1;%'white_purple_red';
 NSS.caxis=[0 4e5]
-DataToDrawdownFigures(AdoptionMapCurrent/1e6,NSS,'Adoption_pkm','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(AdoptionMapCurrent/1e6,NSS,'Adoption_pkm',FigandDataDir,'');
 
 %% Adoption
 NSS=getDrawdownNSS;
@@ -126,7 +134,7 @@ NSS.units='Mpkm/yr';
 NSS.title='Electric Cars Adoption - Low'
 NSS.cmap=ExplorerAdoption1;%'white_purple_red';
 NSS.caxis=[0 2.6e6]
-DataToDrawdownFigures(AdoptionMapLow/1e6,NSS,'Adoption_pkm_low','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(AdoptionMapLow/1e6,NSS,'Adoption_pkm_low',FigandDataDir,'');
 
 %% Adoption
 NSS=getDrawdownNSS;
@@ -135,7 +143,7 @@ NSS.title='Electric Cars Adoption - High'
 NSS.title='Passenger km in Electric Cars'
 NSS.cmap=ExplorerAdoption1;%'white_purple_red';
 NSS.caxis=[0 5e6]
-DataToDrawdownFigures(AdoptionMapHigh/1e6,NSS,'Adoption_pkm_high','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(AdoptionMapHigh/1e6,NSS,'Adoption_pkm_high',FigandDataDir,'');
 
 
 
@@ -146,7 +154,7 @@ NSS.units='%';
 NSS.title='Percent of personal automotive fleet Electric in 2023'
 NSS.cmap=ExplorerAdoption1;%'white_purple_red';
 NSS.caxis=[0 30]
-DataToDrawdownFigures(AdoptionMapPercentageCurrent,NSS,'Adoption_percent','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(AdoptionMapPercentageCurrent,NSS,'Adoption_percent',FigandDataDir,'');
 
 %% Impact
 NSS=getDrawdownNSS;
@@ -156,7 +164,7 @@ NSS.userinterppreference='tex'
 NSS.title='CO_2eq saved per year by use of Electric Cars'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 5]
-DataToDrawdownFigures(ImpactMapCurrent/1e12,NSS,'Impact_Current_limitedcaxes','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(ImpactMapCurrent/1e12,NSS,'Impact_Current_limitedcaxes',FigandDataDir,'');
 
 %% Impact
 NSS=getDrawdownNSS;
@@ -166,7 +174,7 @@ NSS.units='Mt CO_2-eq/yr';
 NSS.title='CO_2-eq saved per year by use of Electric Cars Low Ambition Uptake'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 40]
-DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low_limitedcaxes','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low_limitedcaxes',FigandDataDir,'');
 
 
 %% Impact
@@ -177,7 +185,7 @@ NSS.userinterppreference='tex'
 NSS.title='CO_2-eq saved per year by use of Electric Cars'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 160]
-DataToDrawdownFigures(ImpactMapCurrent/1e12,NSS,'Impact_Current','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(ImpactMapCurrent/1e12,NSS,'Impact_Current',FigandDataDir,'');
 
 %% Impact
 NSS=getDrawdownNSS;
@@ -187,7 +195,7 @@ NSS.units='Mt CO_2-eq/yr';
 NSS.title='CO_2eq saved per year by use of Electric Cars Low Ambition Uptake'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 160]
-DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(ImpactMapLow/1e12,NSS,'Impact_Low',FigandDataDir,'');
 
 %% Impact
 NSS=getDrawdownNSS;
@@ -197,5 +205,5 @@ NSS.units='Mt CO_2-eq/yr';
 NSS.title='CO_2-eq saved per year by use of Electric Cars High Ambition Uptake'
 NSS.cmap=ExplorerImpact1;%'white_blue_green';
 NSS.caxis=[0 160]
-DataToDrawdownFigures(ImpactMapHigh/1e12,NSS,'Impact_High','ElectricCarsFigsAndData/','');
+DataToDrawdownFigures(ImpactMapHigh/1e12,NSS,'Impact_High',FigandDataDir,'');
 

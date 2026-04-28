@@ -48,7 +48,7 @@ else
             disp(['ExplorerSolutionPaths ' char(a(j).name)]);
             eval(['ExplorerSolutionPaths ' char(a(j).name)]);
             cd(a(j).name);
-            pwd
+            uwd
             break
         end
 

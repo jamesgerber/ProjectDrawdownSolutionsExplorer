@@ -3,7 +3,7 @@
 %
 % 
 
-makemaps=0;
+makemaps=1;
 maketables=1;
 ISOList=SEAsia11;
 
@@ -49,9 +49,9 @@ for j=1:numel(populationvect);
     PercentageLossMap(iimap)=AvgFLPercentagevect(j);
     %    PercentageFoodIncludedMap(iimap)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
     %    EmissionsMap(iimap)=TotalGHGEmissionsCountry;
-    EmissionsPerCapitaMap(iimap)=TotalGHGEmissionsCountryvect(j)/populationvect(j);
+    EmissionsPerCapitaMap(iimap)=TotalGHGEmissionsCountryvect(j)./populationvect(j);
     EmissionsFactorMap(iimap)=AvgEmissionsFactorvect(j);
-    TonsWastedPerCapitaMap(iimap)=1000*WeightWithReportedFLvect(j)/populationvect(j);
+    TonsWastedPerCapitaMap(iimap)=1000*WeightWithReportedFLvect(j)./populationvect(j);
     TonsWastedMap(iimap)=1000*WeightWithReportedFLvect(j);
 end
 
@@ -166,7 +166,7 @@ end
 
     NSS.caxis=.99;
     NSS.title='Average emissions intensity of wasted food';
-    NSS.units='kg CO_2-eq/ kg';
+    NSS.units='tons CO_2-eq/ ton';
     NSS.cmap='white_purple_red';
     NSS.logicalinclude=logicalinclude;
     OS=nsg(EmissionsFactorMap,NSS)
@@ -179,7 +179,7 @@ end
 
     NSS.caxis=.99;
     NSS.title='Average emissions intensity of wasted food';
-    NSS.units='kg CO_2-eq/ kg';
+    NSS.units='tons CO_2-eq/ ton';
     NSS.cmap='dark_orange_red';
     NSS.logicalinclude=logicalinclude;
     OS=nsg(EmissionsFactorMap,NSS)
@@ -188,32 +188,32 @@ end
 
 
 
-    %if 3==4
-    x=load('workingbeefonly.mat','EmissionsPerCapitaMap');
-    y=load('workingallmaps.mat','EmissionsPerCapitaMap');
-
-    NSS=getDrawdownNSS;
-
-    NSS.caxis=.99;
-    NSS.title='Percent food waste emissions from beef';
-    NSS.units='%';
-    NSS.cmap='white_purple_red';
-    OS=nsg(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap,NSS)
-    maketransparentoceans_noant_nogridlinesnostates_removeislands('temp.png','BeefEmissionsRatio_Cols4and5_cmap2.png',[1 1 1],1);
-    DataToDrawdownFigures(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap,NSS,'EmissionsFromBeef','FoodWasteMapsAndData')
-
-
-    NSS=getDrawdownNSS;
-
-    NSS.caxis=.99;
-    NSS.title='Percent food waste emissions from beef';
-    NSS.units='%';
-    NSS.cmap='dark_orange_red';
-    OS=nsg(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap*100,NSS)
-    NSS.logicalinclude=logicalinclude;
-    maketransparentoceans_noant_nogridlinesnostates_removeislands('temp.png','BeefEmissionsRatio_Cols4and5_cmap3.png',[1 1 1],1);
-    DataToDrawdownFigures(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap,NSS,'EmissionsFromBeefOrange','FoodWasteMapsAndData')
-    %end
+    % %if 3==4
+    % x=load('workingbeefonly.mat','EmissionsPerCapitaMap');
+    % y=load('workingallmaps.mat','EmissionsPerCapitaMap');
+    % 
+    % NSS=getDrawdownNSS;
+    % 
+    % NSS.caxis=.99;
+    % NSS.title='Percent food waste emissions from beef';
+    % NSS.units='%';
+    % NSS.cmap='white_purple_red';
+    % OS=nsg(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap,NSS)
+    % maketransparentoceans_noant_nogridlinesnostates_removeislands('temp.png','BeefEmissionsRatio_Cols4and5_cmap2.png',[1 1 1],1);
+    % DataToDrawdownFigures(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap,NSS,'EmissionsFromBeef','FoodWasteMapsAndData')
+    % 
+    % 
+    % NSS=getDrawdownNSS;
+    % 
+    % NSS.caxis=.99;
+    % NSS.title='Percent food waste emissions from beef';
+    % NSS.units='%';
+    % NSS.cmap='dark_orange_red';
+    % OS=nsg(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap*100,NSS)
+    % NSS.logicalinclude=logicalinclude;
+    % maketransparentoceans_noant_nogridlinesnostates_removeislands('temp.png','BeefEmissionsRatio_Cols4and5_cmap3.png',[1 1 1],1);
+    % DataToDrawdownFigures(x.EmissionsPerCapitaMap./y.EmissionsPerCapitaMap,NSS,'EmissionsFromBeefOrange','FoodWasteMapsAndData')
+    % %end
 
 
 end

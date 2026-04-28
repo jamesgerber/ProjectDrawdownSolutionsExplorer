@@ -28,8 +28,22 @@ treecoverlossrate5min=treecoverloss5min./treecover5min;
 
 clear treecoverloss30sec
 
+nsg(treecoverlossrate5min/22,'caxis',.95,'title','Tree Cover Loss Rate','units','fractional area per year');
+% now try this with band averaging
+lossratemap=datablank;
+for j=1:4
 
+    jj=LatBands==j;
 
+    ii=find(jj & isfinite(treecover5min) & isfinite(treecoverlossrate5min));
+
+    avglossrate=sum(treecoverlossrate5min(ii).*treecover5min(ii))./...
+        sum(treecover5min(ii))/22;
+
+    lossratemap(jj)=avglossrate;
+end
+
+nsg(lossratemap,'title','Average Loss Rate','units','fractional area per year','caxis',[0 .012])
 
 
 GHGFluxPos30sec=processgeotiff('inputdatafiles/GFWForestPosFlux2001_2023_30sec.tif');
@@ -180,6 +194,30 @@ NSS.title='Effectiveness of protecting a ha of land, 2001-2023';
 NSS.caxis=[0 10];
 DataToDrawdownFigures(Effectiveness,NSS,'effectiveness',MapsAndDataFilename);
 %%
+
+% now some figs for comparison
+NSS=BaseNSS;
+NSS.cmap=ExplorerEffectiveness1;
+NSS.units='t CO_2-eq/ha/yr';
+NSS.title='Effectiveness of protecting a ha of land, 2001-2023';
+NSS.caxis=[0 10];
+nsg(Effectiveness,NSS);
+
+carbonlossperlostha=datablank;
+for j=1:4
+
+    jj=LatBands==j;
+
+    ii=find(jj & isfinite(treecover5min) & isfinite(CStock5min));
+
+    carbonlossperlosthaX=sum(CStock5min(ii).*3.67.*treecover5min(ii))./...
+        sum(treecover5min(ii))/22;
+
+    carbonlossperlostha(jj)=carbonlossperlosthaX;
+end
+
+nsg(carbonlossperlostha,'title','Average Loss Rate','units','fractional area per year','caxis',[0 420])
+
 
 %%%%%%%%%%%%%%%%%
 %   Adoption current   %

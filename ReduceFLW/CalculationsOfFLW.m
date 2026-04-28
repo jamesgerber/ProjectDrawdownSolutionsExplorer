@@ -17,11 +17,14 @@
 
 %
 
-for jFLW=1:7
-    for jItem=1:6;
+itemlists=load('inputdatafiles/FBSAggregateAndIndividualItems.mat');
+fid=fopen('intermediatedatafiles/diagnostics.csv','w');
 
-        FLWColumnFlag='all';
-        ItemsFlag='beef';
+for jFLW=1:7
+    for jItem=[1:6];
+        % 
+        % FLWColumnFlag='all';
+        % ItemsFlag='beef';
         YYYY=2020;
 
         switch jFLW
@@ -96,10 +99,32 @@ for jFLW=1:7
 
         FBS0=ReturnFBSData; % Need list of items here
         FBS0=subsetofstructureofvectors(FBS0,FBS0.Year==YYYY)
-        FullItemsList=unique(FBS0.Item);
-        FullItemsList=setdiff(FullItemsList,'Alcohol, Non-Food');
-        FullItemsList=setdiff(FullItemsList,'Grand Total');
-        FullItemsList=setdiff(FullItemsList,'Animal Products');
+
+        
+        %FullItemsList=unique(FBS0.Item);
+        %FullItemCodesList=unique(FBS0.Item_Code_FBS);
+        
+        % Need to go with numerical codes because Eggs is both an aggregate
+        % quantity and an individual quantity. 
+        
+        FullItemCodeNumsList=unique(FBS0.Item_Code);
+        
+        RejectedCodeNums=intersect(FullItemCodeNumsList,itemlists.ListOfAggregateItemNumCodes);
+        LimitedCodeNums=intersect(FullItemCodeNumsList,itemlists.ListOfIndividualItemNumCodes);
+
+        clear FullItemsList
+
+        for j=1:numel(LimitedCodeNums);
+            keepcode=LimitedCodeNums(j);
+            iivect=find(FBS0.Item_Code==keepcode);
+            iivect(1)
+            FullItemsList{j}=FBS0.Item{iivect(1)};
+        end
+
+        FullItemsList=setdiff(FullItemsList,'Beverages, Alcoholic')
+        FullItemsList=setdiff(FullItemsList,'Beverages, Fermented')
+        FullItemsList=setdiff(FullItemsList,'Beer')
+
 
 
         switch ItemsFlag
@@ -157,7 +182,6 @@ for jFLW=1:7
         b.FLW_commodity_group=TableS13Full.FLWCommodityGroup;
         b.GTAP_sector=TableS13Full.GTAPSector;
 
-        fid=fopen('intermediatedatafiles/diagnostics.csv','w');
         fprintf(fid,'faocountryname,iso,ISO,Item,wtfflag,flagtext,FLPercentage,ItemWeight\n');
 
         PercentageLossMap=datablank;
@@ -236,8 +260,11 @@ for jFLW=1:7
             % I have to force doloop=1 in a loop below but not the first time.
             %
             % Really, if anyone ever sees this I'm just so ashamed.
-
-            doloop=0;
+%
+%  correction much later:  turns out that this is embarrassing and does not
+%  work:  i had to modify doloop to 1 down below to get population vector
+%  to work.
+            doloop=0;  % 
             for m=1:numel(isolist);
                 iso=isolist{m};  % confusing with the names of isos
                 ISO=upper(iso);
@@ -277,8 +304,18 @@ for jFLW=1:7
                     %      FBS0=subsetofstructureofvectors(FBS0,FBS0.Year==YYYY)
 
                     FBS=subsetofstructureofvectors(FBS0,strmatch(faocountryname,FBS0.Area,'exact'));
-                    FBS=subsetofstructureofvectors(FBS,strmatch('Domestic',FBS.Element));
                     FBS=subsetofstructureofvectors(FBS,FBS.Year==YYYY);
+
+                    FBSec=FBS; % FBS "extra calculations" I'm going back through and calculating a bit more stuff.
+
+                    FBStest=subsetofstructureofvectors(FBS,strmatch('Domestic',FBS.Element));
+                    FBS=subsetofstructureofvectors(FBS,strmatch('Food',FBS.Element,'exact'));
+
+                    FBSfsq=subsetofstructureofvectors(FBSec,strmatch('Food supply quantity (kg/capita/yr)',FBSec.Element));
+
+                    AreaPopulation=pullfromsov(FBSec,'Value','Element','Total Population - Both sexes')*1000;
+
+
                 end
                 if isempty(FBS.Area)
                     doloop=0;
@@ -302,11 +339,14 @@ for jFLW=1:7
 
                     ReducedItemsList=intersect(ItemsList,unique(FBS.Item)); % let's remove things that don't appear in this country
 
+                    wtfflag=0;
+if numel(ReducedItemsList)>0
                     for j=1:numel(ReducedItemsList);
 
                         ThisItem=ReducedItemsList{j};
 
                         FBSItem=subsetofstructureofvectors(FBS,strmatch(ThisItem,FBS.Item,'exact'));
+                        FBSfsqItem=subsetofstructureofvectors(FBSfsq,strmatch(ThisItem,FBSfsq.Item,'exact'));
                         if numel(FBSItem.Area)==2
                             % this is usually because there is an Estimated and
                             % Imputed value.   Better to use E ("sending agency")
@@ -317,6 +357,13 @@ for jFLW=1:7
                                 FBSItem=subsetofstructureofvectors(FBSItem,2);
                             else
                                 FBSItem=subsetofstructureofvectors(FBSItem,1);
+                            end
+                        end
+                        if numel(FBSfsqItem.Area)==2
+                            if isequal(FBSfsqItem.Flag{2},'E')
+                                FBSfsqItem=subsetofstructureofvectors(FBSfsqItem,2);
+                            else
+                                FBSfsqItem=subsetofstructureofvectors(FBSfsqItem,1);
                             end
                         end
                         ItemWeight(j)=FBSItem.Value;
@@ -345,7 +392,7 @@ for jFLW=1:7
                         %% need to match into Poore table
                         FBSItem.Item
                         EmissionsFactor=GetPooreEmissionFactor(FBSItem.Item_Code,FBSItem.Item);
-                        'breakpoint';
+%                        'breakpoint';
                         EF(j)=EmissionsFactor;
 
                         % % first try with code
@@ -409,7 +456,7 @@ for jFLW=1:7
                     ff(iimap)=1;
                     ff=logical(ff);
                     population=sum(pop(ff));
-
+                    populationFromFAO=AreaPopulation;
                     WastePercentageMap(iimap)=AvgFLPercentage;
                     PercentageLossMap(iimap)=AvgFLPercentage;
                     PercentageFoodIncludedMap(iimap)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
@@ -433,16 +480,16 @@ for jFLW=1:7
                     WeightWithNoReportedFLvect(countrycount)=WeightWithNoReportedFL;
                     WeightWithReportedFLvect(countrycount)=WeightWithReportedFL;
                     populationvect(countrycount)=population;
+                    populationvectFAO(countrycount)=populationFromFAO;
                     faocountrynamelistvect{countrycount}=faocountryname;
                     iimapdata{countrycount}=iimap;
                     constructedISOList{countrycount}=ISO;
                     constructedgtapisolist{countrycount}=iso;
-
+end
                 end
 
             end
         end
-        fclose(fid)
 
         save(['intermediatedatafiles/FLWresults/FLWCalculationResults' SaveFileNameText],...
             'DiagnosticPercentageFoodIncludedVect',...
@@ -452,6 +499,7 @@ for jFLW=1:7
             'WeightWithNoReportedFLvect',...
             'WeightWithReportedFLvect',...
             'populationvect',...
+            'populationvectFAO',...
             'faocountrynamelistvect',...
             'iimapdata',...
             'constructedISOList',...
@@ -464,5 +512,6 @@ ii=isfinite(WeightWithReportedFLvect) & isfinite(AvgFLPercentagevect)
 
 avgfoodwastepercent=sum(WeightWithReportedFLvect(ii).*AvgFLPercentagevect(ii))/sum(WeightWithReportedFLvect(ii));
 
+        fclose(fid)
 
 %%

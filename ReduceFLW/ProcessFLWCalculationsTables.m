@@ -79,8 +79,8 @@ fprintf(fid,' ,   , , , ,1000 tonnes,1000 tonnes,%%,%%\n');
 
 
 
-for jFLW=[1];
-    jItem=2;
+for jFLW=[1:7];
+    for jItem=1:6;
 
 
     switch jFLW
@@ -232,7 +232,7 @@ for jFLW=[1];
         fprintf(fid,'%s,%s,%s,%d,%s,%f,%f,%f,%f\n',xAll.faocountrynamelistvect{idx},CountryName,ISO,YYYY,FLWColumntext,AllFood,AllBeef,FoodWastePercent,BeefWastePercent);
     end
 
-
+    end
 end
 
 fclose(fid)

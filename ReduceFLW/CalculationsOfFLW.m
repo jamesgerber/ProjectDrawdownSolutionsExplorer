@@ -23,8 +23,8 @@
 %itemlists=load('inputdatafiles/FBSAggregateAndIndividualItems.mat');
 fid=fopen('intermediatedatafiles/diagnostics.csv','w');
 
-for jFLW=1;%:7
-    for jItem=[1:2];
+for jFLW=1:7
+    for jItem=[1:6];
         %
         % FLWColumnFlag='all';
         % ItemsFlag='beef';
@@ -221,7 +221,7 @@ for jFLW=1;%:7
         clear('DiagnosticPercentageFoodIncludedVect',...
             'AvgFLPercentagevect',...
             'AvgEmissionsFactorvect',...
-            'TotalGHGEmissionsCountryvect',...
+            'TotalGHGEmissionsTonnesCountryvect',...
             'WeightWithNoReportedFLvect',...
             'WeightWithReportedFLvect',...
             'populationvect',...
@@ -443,7 +443,14 @@ for jFLW=1;%:7
                                 else
                                     wtfflag(j)=1;
                                     flagtext='everything good';
-                                    FLPercentage(j)=sum(FLTable(iiFLTable,[iiFLWColumns]));
+                                    f=1-(FLTable(iiFLTable,[iiFLWColumns])/100);
+                                    FLP=(1-prod(f))*100;
+                                    FLPercentage(j)=FLP;
+
+                                    % whoops: wrong below.  Leaving so
+                                    % future generations can appropriate
+                                    % despise me.
+                                    %                                    FLPercentage(j)=sum(FLTable(iiFLTable,[iiFLWColumns]));
                                 end
                             else
                                 wtfflag(j)=3;
@@ -505,13 +512,13 @@ for jFLW=1;%:7
 
                         jj=wtfflag==1 & isfinite(EF);
 
-                        TotalGHGEmissionsCountry=sum(EF(jj).*ItemWeight(jj).*FLPercentage(jj))
+                        TotalGHGEmissionsCountryTonnes=sum(EF(jj).*ItemWeight(jj)*1000.*(FLPercentage(jj)/100))
 
                         AvgEmissionsFactor = sum(EF(jj).*ItemWeight(jj).*FLPercentage(jj))/sum(ItemWeight(jj).*FLPercentage(jj))
 
 
                         fprintf(fid,'country, iso, AvgFLPercentage, WeightWithFL, WeightWithoutReportedFL,TotalGHGEmissionsCountry\n');
-                        fprintf(fid,'%s,%s,%f,%f,%f,%f\n',faocountryname,gtapiso,AvgFLPercentage,WeightWithReportedFL,WeightWithNoReportedFL,TotalGHGEmissionsCountry);
+                        fprintf(fid,'%s,%s,%f,%f,%f,%f\n',faocountryname,gtapiso,AvgFLPercentage,WeightWithReportedFL,WeightWithNoReportedFL,TotalGHGEmissionsCountryTonnes);
 
                         [g0,iimap,countryname,ISO]=getgeo41_g0(ISO);
 
@@ -523,8 +530,8 @@ for jFLW=1;%:7
                         WastePercentageMap(iimap)=AvgFLPercentage;
                         PercentageLossMap(iimap)=AvgFLPercentage;
                         PercentageFoodIncludedMap(iimap)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
-                        EmissionsMap(iimap)=TotalGHGEmissionsCountry;
-                        EmissionsPerCapitaMap(iimap)=TotalGHGEmissionsCountry/population;
+                        EmissionsMap(iimap)=TotalGHGEmissionsCountryTonnes;
+                        EmissionsPerCapitaMap(iimap)=TotalGHGEmissionsCountryTonnes/population;
 
 
                         EmissionsFactorMap(iimap)=AvgEmissionsFactor;
@@ -539,7 +546,7 @@ for jFLW=1;%:7
                         DiagnosticPercentageFoodIncludedVect(countrycount)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
                         AvgFLPercentagevect(countrycount)=AvgFLPercentage;
                         AvgEmissionsFactorvect(countrycount)=AvgEmissionsFactor;
-                        TotalGHGEmissionsCountryvect(countrycount)=TotalGHGEmissionsCountry;
+                        TotalGHGEmissionsTonnesCountryvect(countrycount)=TotalGHGEmissionsCountryTonnes;
                         WeightWithNoReportedFLvect(countrycount)=WeightWithNoReportedFL;
                         WeightWithReportedFLvect(countrycount)=WeightWithReportedFL;
                         populationvect(countrycount)=population;
@@ -558,7 +565,7 @@ for jFLW=1;%:7
             'DiagnosticPercentageFoodIncludedVect',...
             'AvgFLPercentagevect',...
             'AvgEmissionsFactorvect',...
-            'TotalGHGEmissionsCountryvect',...
+            'TotalGHGEmissionsTonnesCountryvect',...
             'WeightWithNoReportedFLvect',...
             'WeightWithReportedFLvect',...
             'populationvect',...

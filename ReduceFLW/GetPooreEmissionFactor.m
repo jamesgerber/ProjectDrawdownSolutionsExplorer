@@ -23,7 +23,7 @@ else
     PooreCode=FBSToPoore.UniqueCode(idx);
 
 if isempty(idx)
-   warning('fuck ... something wrong')
+   warning('oops ... something wrong')
     PooreCode=9999;
 end
 

@@ -1,4 +1,4 @@
-% script to make a bunch of tables.
+% script to make tables aggregating food waste data from Gatto.
 
 % Agricultural production
 % Post-harvest handling & storage
@@ -54,7 +54,9 @@ switch option
         end
         fid=fopen('intermediatedatafiles/FLWresultsSEAsia.csv','w');
     case 2
-        y=load('intermediatedatafiles/FLWresults/FLWCalculationResultsall_AllItems_2020.mat');
+        y=load('intermediatedatafiles/FLWresults/FLWCalculationResultsall_Beef_2020.mat');
+% note data quality issues for Kirabati, beef excluded, to just use the ones
+% where Beef data is present.
 
         ISOlist=y.constructedISOList;
         CountryNamelist=y.faocountrynamelistvect;
@@ -77,7 +79,7 @@ fprintf(fid,' ,   , , , ,1000 tonnes,1000 tonnes,%%,%%\n');
 
 
 
-for jFLW=[1 3:7];
+for jFLW=[1];
     jItem=2;
 
 
@@ -218,8 +220,11 @@ for jFLW=[1 3:7];
         idx=strmatch(ISO,xAll.constructedISOList);
 
         AllFood=sum(xAll.WeightWithNoReportedFLvect(idx)+xAll.WeightWithReportedFLvect(idx));
-        AllBeef=sum(xBeef.WeightWithNoReportedFLvect(idx)+xBeef.WeightWithReportedFLvect(idx));
         FoodWastePercent=sum(xAll.AvgFLPercentagevect(idx));
+
+        idx=strmatch(ISO,xBeef.constructedISOList);
+
+        AllBeef=sum(xBeef.WeightWithNoReportedFLvect(idx)+xBeef.WeightWithReportedFLvect(idx));
         BeefWastePercent=sum(xBeef.AvgFLPercentagevect(idx));
 
 

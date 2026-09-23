@@ -169,8 +169,9 @@ DataToDrawdownFigures(EmissionsInLandscapeHA,NSS,'emissionsflux',MapsAndDataFile
 
 % Carbon Stock is from data provided by David Gibbs of WRI, it is the data
 % in Harris et al, + Gibbs et al update.  
-CStock30sec=processgeotiff('inputdatafiles/TotalCarbonStock30s.tif');
-CStock5min=processgeotiff('inputdatafiles/TotalCStock5min.tif');
+% % % CStock30sec=processgeotiff('inputdatafiles/TotalCarbonStock30s.tif');
+ CStock5min=processgeotiff('inputdatafiles/TotalCStock5min.tif');
+%%%CStock5min=pgt(['~/sandbox/jsg215_reprocessWRIData/TotalCstock/WRICStockTopDecileTreeCover5min.tif']);
 
 TCLossPercentage=treecoverlossrate5min;
 TCLossPercentage(TCLossPercentage>1)=1;

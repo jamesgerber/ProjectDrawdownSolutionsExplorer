@@ -8,17 +8,21 @@ function losstable=extracttables(SheetName,dash,rangemethod);
 % extracttables("Table S3 – Western Europe",'≤','mean')
 % extracttables(4,'≤','mean')
 % extracttables("Table S1 – Western Europe",'≤','mean')
-sheetloc='/Users/jsgerber/sandbox/jsg216_MappingIndividualSolutions/Sol24_ReduceFoodLossAndWaste/flwfromgattotables/rawtablesforextraction/GTAP-FLW_Gatto-2024.xlsx';
-
-Raw = importfile(sheetloc, SheetName, [2, Inf]);
+% sheetloc='/Users/jsgerber/sandbox/jsg216_MappingIndividualSolutions/Sol24_ReduceFoodLossAndWaste/flwfromgattotables/rawtablesforextraction/GTAP-FLW_Gatto-2024.xlsx';
+sheetloc='~/DrawdownSolutions/ReduceFLW/inputdatafiles/rawtablesforextraction/GTAP-FLW_Gatto-2024.xlsx';
+Raw = importfileGTAPFLW(sheetloc, SheetName, [2, Inf]);
 fn=fieldnames(Raw);
 fn=fn(2:6);
 for j=1:5
     UglyList=Raw.(fn{j});
 
     for m=1:11
-        clean=parseUgly(UglyList{m},dash,rangemethod);
-        losstable(m,j)=clean;
+        if isnumeric(UglyList)
+            losstable(m,j)=UglyList(m);
+        else
+            clean=parseUgly(UglyList{m},dash,rangemethod);
+            losstable(m,j)=clean;
+        end
     end
 end
 

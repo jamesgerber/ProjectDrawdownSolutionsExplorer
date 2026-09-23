@@ -4,10 +4,10 @@ function explorer(solutiontext)
 % explorer - simple script to print some help, cd, and remind me 
 % of of what is going on
    oldwd=pwd;
-
+   stash oldwd
     switch getenv('USER')
         case 'jsgerber'
-            cd('~/DrawdownSolutions/');
+            cd(unSymLink('~/DrawdownSolutions/'));
         case 'alexsweeney'
             cd('/Users/alexsweeney/Documents/MATLAB/ProjectDrawdownSolutionsExplorer');
 
@@ -22,7 +22,7 @@ function explorer(solutiontext)
 if nargin==0
 
  
-    disp(['changing dir to ' pwd ', stored old dir in oldwd']);
+    disp(['changing dir to ' uwd ', stored old dir in oldwd']);
 
     % let's propose changing directories to latest
 
@@ -48,7 +48,7 @@ else
             disp(['ExplorerSolutionPaths ' char(a(j).name)]);
             eval(['ExplorerSolutionPaths ' char(a(j).name)]);
             cd(a(j).name);
-            uwd
+            uwd;
             break
         end
 

@@ -155,8 +155,10 @@ DataToDrawdownFigures(EmissionsInLandscapeHA,NSS,'emissionsflux',MapsAndDataFile
 
 % Carbon Stock is from data provided by David Gibbs of WRI, it is the data
 % in Harris et al, + Gibbs et al update.  
-CStock30sec=processgeotiff('inputdatafiles/TotalCarbonStock30s.tif');
-CStock5min=processgeotiff('inputdatafiles/TotalCStock5min.tif');
+%CStock30sec=processgeotiff('inputdatafiles/TotalCarbonStock30s.tif');
+%CStock5min=processgeotiff('inputdatafiles/TotalCStock5min.tif');
+
+CStock5min=pgt(['~/sandbox/jsg215_reprocessWRIData/TotalCstock/WRICStockTopDecileTreeCover5min.tif']);
 
 TCLossPercentage=treecoverlossrate5min;
 TCLossPercentage(TCLossPercentage>1)=1;
@@ -186,12 +188,20 @@ DataToDrawdownFigures(Effectiveness,NSS,'effectiveness',MapsAndDataFilename);
 %%%%%%%%%%%%%%%%%
 %wdpa1=processgeotiff('inputdatafiles/raster_wdpa_iucncats_ItoVI.tif');
 % this should be a binary, where 1 = protected area.
-wdpa30sec=processgeotiff('inputdatafiles/raster_wdpa_iucncats_ItoVI_alltouchedFalse_1km.tif');
-wdpa5min=processgeotiff('inputdatafiles/raster_wdpa_iucncats_ItoVI_alltouchedFalse.tif');
+%wdpa30sec=processgeotiff('inputdatafiles/raster_wdpa_iucncats_ItoVI_alltouchedFalse_1km.tif');
+%wdpa5min=processgeotiff('inputdatafiles/raster_wdpa_iucncats_ItoVI_alltouchedFalse.tif');
+
+wdpa5min=pgt('~/shareddrives/GeospatialDrive/Processed Data/WDPA/Archived WDPADatasets/AveryProcessIndividualLayers/WDPA_AllCategories_NoOverlap_ProcessedinRMay2026_5min.tif');
+wdpa30sec=pgt('~/shareddrives/GeospatialDrive/Processed Data/WDPA/Archived WDPADatasets/AveryProcessIndividualLayers/WDPA_AllCategories_NoOverlap_ProcessedinRMay2026_30sec.tif');
 
 % this was 0.025 for explorer maps
 warning('noodlingwith Protect Forests')
 currentadoptionraster=wdpa5min==1 & treecover5min>.000;
+
+
+
+
+
 
 currentadoptionraster30sec=treecover30sec;
 currentadoptionraster30sec(wdpa30sec==0)=0;

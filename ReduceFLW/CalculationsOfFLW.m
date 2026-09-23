@@ -1,4 +1,4 @@
-% This script calculates Food Loos and Waste.  It is uses Gatto et al to
+% This script calculates Food Loss and Waste.  It is uses Gatto et al to
 % calculate weight of food loss at various stages from agricultural
 % production to processing to consumer.   It uses Poore and Nemececk to
 % relate that weight to emissions.
@@ -14,15 +14,18 @@
 %
 % Some notes:
 %
+%  This code uses the .csv  GTAP-FLW_Gatto-2024.csv
+% I (am 95% certain) someone at drawdown made this file from the supplemental to the
+% Gatto paper ... the tables from the .pdf supplemental are pasted in here.
 
 %
 
-itemlists=load('inputdatafiles/FBSAggregateAndIndividualItems.mat');
+%itemlists=load('inputdatafiles/FBSAggregateAndIndividualItems.mat');
 fid=fopen('intermediatedatafiles/diagnostics.csv','w');
 
-for jFLW=1:7
-    for jItem=[1:6];
-        % 
+for jFLW=1;%:7
+    for jItem=[1:2];
+        %
         % FLWColumnFlag='all';
         % ItemsFlag='beef';
         YYYY=2020;
@@ -100,18 +103,78 @@ for jFLW=1:7
         FBS0=ReturnFBSData; % Need list of items here
         FBS0=subsetofstructureofvectors(FBS0,FBS0.Year==YYYY)
 
-        
-        %FullItemsList=unique(FBS0.Item);
-        %FullItemCodesList=unique(FBS0.Item_Code_FBS);
-        
-        % Need to go with numerical codes because Eggs is both an aggregate
-        % quantity and an individual quantity. 
-        
-        FullItemCodeNumsList=unique(FBS0.Item_Code);
-        
-        RejectedCodeNums=intersect(FullItemCodeNumsList,itemlists.ListOfAggregateItemNumCodes);
-        LimitedCodeNums=intersect(FullItemCodeNumsList,itemlists.ListOfIndividualItemNumCodes);
+        %% Section to make a List of AggregateItemNumCodes and IndividualItemNumCodes
+        FullItemsList=unique(FBS0.Item);
+        FullItemCodesList=unique(FBS0.Item_Code);
 
+        % Need to go with numerical codes because Eggs is both an aggregate
+        % quantity and an individual quantity.
+
+        ListOfAggregateItemNumCodes=FullItemCodesList(FullItemCodesList>2900);
+        ListOfIndividualItemNumCodes=FullItemCodesList(FullItemCodesList<2900);
+
+        ii=ismember(FBS0.Item_Code,ListOfAggregateItemNumCodes);
+        ListOfAggregateNames=unique(FBS0.Item(ii))
+
+        ii=ismember(FBS0.Item_Code,ListOfIndividualItemNumCodes);
+        ListOfIndividualNames=unique(FBS0.Item(ii))
+
+        % to remove from individual list: {'Alcohol, Non-Food','Population'};
+        % to remove from aggregate list
+        %    {'Animal Products' }
+        %    {'Grand Total'     }
+        %    {'Vegetal Products'}
+
+
+        AggregateNamesKeep=setdiff(ListOfAggregateNames, {'Animal Products','Grand Total','Vegetal Products'});
+        IndividualNamesKeep=setdiff(ListOfIndividualNames,{'Alcohol, Non-Food','Population'})
+
+        %  now turn names into lists
+        clear AggregateItemCodesKeep IndividualItemCodesKeep
+        for j=1:numel(AggregateNamesKeep);
+            ii=strmatch(AggregateNamesKeep{j},FBS0.Item,'exact');
+            temp=unique(FBS0.Item_Code(ii));
+            if numel(temp)==2
+                % this can only be eggs.
+                % if ~isequal(AggregateNamesKeep{j},'Eggs')
+                %     error
+                % else
+                temp=temp(2); % use the larger one for aggregagate
+                % end
+            end
+
+            AggregateItemCodesKeep(j)=temp;
+        end
+
+        for j=1:numel(IndividualNamesKeep);
+            ii=strmatch(IndividualNamesKeep{j},FBS0.Item,'exact');
+            temp=unique(FBS0.Item_Code(ii));
+            if numel(temp)==2
+                % % this can only be eggs.
+                % if ~isequal(AggregateNamesKeep{j},'Eggs')
+                %     error
+                % else
+                temp=temp(1); % use the smaller one for individual
+                % end
+            end
+
+            IndividualItemCodesKeep(j)=temp;
+        end
+
+
+
+
+
+
+        FullItemCodeNumsList=unique(FBS0.Item_Code);
+
+        % from version of code that relied on something I wrote a while
+        % back that was quite opaque
+
+        %        RejectedCodeNums=intersect(FullItemCodeNumsList,itemlists.ListOfAggregateItemNumCodes);
+        %        LimitedCodeNums=intersect(FullItemCodeNumsList,itemlists.ListOfIndividualItemNumCodes);
+        RejectedCodeNums=intersect(FullItemCodeNumsList,AggregateItemCodesKeep);
+        LimitedCodeNums=intersect(FullItemCodeNumsList,IndividualItemCodesKeep);
         clear FullItemsList
 
         for j=1:numel(LimitedCodeNums);
@@ -175,8 +238,8 @@ for jFLW=1:7
         clear b
 
         a=readgenericcsv('inputdatafiles/rawtablesforextraction/GTAP-FLW_Gatto-2024.csv')
-        TableS13Full = importfile1("/Users/jsgerber/sandbox/jsg216_MappingIndividualSolutions/Sol24_ReduceFoodLossAndWaste/flwfromgattotables/TableS13Full.csv", [2, Inf]);
-        SimplefoodwasteGHGcomparisons = ImportPoore("/Users/jsgerber/sandbox/jsg216_MappingIndividualSolutions/Sol24_ReduceFoodLossAndWaste/flwfromgattotables/Simple-food-waste-GHG-comparisons.csv", [2, Inf]);
+        TableS13Full = importfile1("inputdatafiles/TableS13Full.csv", [2, Inf]);
+        SimplefoodwasteGHGcomparisons = ImportPoore("inputdatafiles/Simple-food-waste-GHG-comparisons.csv", [2, Inf]);
         gtapgeostruct=getgtapgeostruct;
         b.FBS_commodity=TableS13Full.FBSCommodity;
         b.FLW_commodity_group=TableS13Full.FLWCommodityGroup;
@@ -260,11 +323,11 @@ for jFLW=1:7
             % I have to force doloop=1 in a loop below but not the first time.
             %
             % Really, if anyone ever sees this I'm just so ashamed.
-%
-%  correction much later:  turns out that this is embarrassing and does not
-%  work:  i had to modify doloop to 1 down below to get population vector
-%  to work.
-            doloop=0;  % 
+            %
+            %  correction much later:  turns out that this is embarrassing and does not
+            %  work:  i had to modify doloop to 1 down below to get population vector
+            %  to work.
+            doloop=0;  %
             for m=1:numel(isolist);
                 iso=isolist{m};  % confusing with the names of isos
                 ISO=upper(iso);
@@ -340,152 +403,152 @@ for jFLW=1:7
                     ReducedItemsList=intersect(ItemsList,unique(FBS.Item)); % let's remove things that don't appear in this country
 
                     wtfflag=0;
-if numel(ReducedItemsList)>0
-                    for j=1:numel(ReducedItemsList);
+                    if numel(ReducedItemsList)>0
+                        for j=1:numel(ReducedItemsList);
 
-                        ThisItem=ReducedItemsList{j};
+                            ThisItem=ReducedItemsList{j};
 
-                        FBSItem=subsetofstructureofvectors(FBS,strmatch(ThisItem,FBS.Item,'exact'));
-                        FBSfsqItem=subsetofstructureofvectors(FBSfsq,strmatch(ThisItem,FBSfsq.Item,'exact'));
-                        if numel(FBSItem.Area)==2
-                            % this is usually because there is an Estimated and
-                            % Imputed value.   Better to use E ("sending agency")
-                            % Algorithm below ignores the presence of 'X' flag
-                            % which only occurs 0.05% (i.e. 0.0005 fraction) of the
-                            % time.
-                            if isequal(FBSItem.Flag{2},'E')
-                                FBSItem=subsetofstructureofvectors(FBSItem,2);
-                            else
-                                FBSItem=subsetofstructureofvectors(FBSItem,1);
+                            FBSItem=subsetofstructureofvectors(FBS,strmatch(ThisItem,FBS.Item,'exact'));
+                            FBSfsqItem=subsetofstructureofvectors(FBSfsq,strmatch(ThisItem,FBSfsq.Item,'exact'));
+                            if numel(FBSItem.Area)==2
+                                % this is usually because there is an Estimated and
+                                % Imputed value.   Better to use E ("sending agency")
+                                % Algorithm below ignores the presence of 'X' flag
+                                % which only occurs 0.05% (i.e. 0.0005 fraction) of the
+                                % time.
+                                if isequal(FBSItem.Flag{2},'E')
+                                    FBSItem=subsetofstructureofvectors(FBSItem,2);
+                                else
+                                    FBSItem=subsetofstructureofvectors(FBSItem,1);
+                                end
                             end
-                        end
-                        if numel(FBSfsqItem.Area)==2
-                            if isequal(FBSfsqItem.Flag{2},'E')
-                                FBSfsqItem=subsetofstructureofvectors(FBSfsqItem,2);
-                            else
-                                FBSfsqItem=subsetofstructureofvectors(FBSfsqItem,1);
+                            if numel(FBSfsqItem.Area)==2
+                                if isequal(FBSfsqItem.Flag{2},'E')
+                                    FBSfsqItem=subsetofstructureofvectors(FBSfsqItem,2);
+                                else
+                                    FBSfsqItem=subsetofstructureofvectors(FBSfsqItem,1);
+                                end
                             end
-                        end
-                        ItemWeight(j)=FBSItem.Value;
-                        idx=strmatch(ThisItem,b.FBS_commodity,'exact');
-                        if numel(idx)==1
+                            ItemWeight(j)=FBSItem.Value;
+                            idx=strmatch(ThisItem,b.FBS_commodity,'exact');
+                            if numel(idx)==1
 
-                            GTAP_sector=char(b.GTAP_sector(idx));
-                            iiFLTable=GTAPSectorToGattoRow(GTAP_sector);
+                                GTAP_sector=char(b.GTAP_sector(idx));
+                                iiFLTable=GTAPSectorToGattoRow(GTAP_sector);
 
-                            if isempty(iiFLTable)
+                                if isempty(iiFLTable)
+                                    FLPercentage(j)=nan;
+                                    wtfflag(j)=2;
+                                    flagtext='no gtap sector';
+                                else
+                                    wtfflag(j)=1;
+                                    flagtext='everything good';
+                                    FLPercentage(j)=sum(FLTable(iiFLTable,[iiFLWColumns]));
+                                end
+                            else
+                                wtfflag(j)=3;
+                                flagtext='did not find in table S13';
+                                disp(['did not find ' ThisItem]);
                                 FLPercentage(j)=nan;
-                                wtfflag(j)=2;
-                                flagtext='no gtap sector';
-                            else
-                                wtfflag(j)=1;
-                                flagtext='everything good';
-                                FLPercentage(j)=sum(FLTable(iiFLTable,[iiFLWColumns]));
                             end
-                        else
-                            wtfflag(j)=3;
-                            flagtext='did not find in table S13';
-                            disp(['did not find ' ThisItem]);
-                            FLPercentage(j)=nan;
+
+                            %% need to match into Poore table
+                            FBSItem.Item
+                            EmissionsFactor=GetPooreEmissionFactor(FBSItem.Item_Code,FBSItem.Item);
+                            %                        'breakpoint';
+                            EF(j)=EmissionsFactor;
+
+                            % % first try with code
+                            % FBSCode=FBSItem.Item_Code;
+                            % idx=find(SimplefoodwasteGHGcomparisons.FBSIVCode==FBSCode);
+                            % jdx=find(SimplefoodwasteGHGcomparisons.FBSIIICode==FBSCode);
+                            %
+                            % disp('-----')
+                            % if numel(idx)==0 & numel(jdx)==0
+                            %     disp(['no match into Poore table for ' char(FBSItem.Item)])
+                            % else
+                            %     if numel(idx)>0
+                            %         disp(['FBSIV match between ' char(FBSItem.Item)]);
+                            %         disp([SimplefoodwasteGHGcomparisons.FBSName{idx(1)}]);
+                            %     end
+                            %     if numel(jdx)>0
+                            %         disp(['FBSIII match between ' char(FBSItem.Item)]);
+                            %         disp([SimplefoodwasteGHGcomparisons.FBSName{jdx(1)}]);
+                            %
+                            %     end
+                            %
+                            % end
+
+
+                            fprintf(1,'%s,%s,%s,%s,%d,%s,%f,%f,%f\n',...
+                                faocountryname,gtapiso,ISO,strrep(ThisItem,',','_'),wtfflag(j),flagtext,FLPercentage(j),ItemWeight(j),EF(j));
+                            fprintf(fid,'%s,%s,%s,%s,%d,%s,%f,%f,%f\n',...
+                                faocountryname,gtapiso,ISO,strrep(ThisItem,',','_'),wtfflag(j),flagtext,FLPercentage(j),ItemWeight(j),EF(j));
+
+
                         end
 
-                        %% need to match into Poore table
-                        FBSItem.Item
-                        EmissionsFactor=GetPooreEmissionFactor(FBSItem.Item_Code,FBSItem.Item);
-%                        'breakpoint';
-                        EF(j)=EmissionsFactor;
-
-                        % % first try with code
-                        % FBSCode=FBSItem.Item_Code;
-                        % idx=find(SimplefoodwasteGHGcomparisons.FBSIVCode==FBSCode);
-                        % jdx=find(SimplefoodwasteGHGcomparisons.FBSIIICode==FBSCode);
-                        %
-                        % disp('-----')
-                        % if numel(idx)==0 & numel(jdx)==0
-                        %     disp(['no match into Poore table for ' char(FBSItem.Item)])
-                        % else
-                        %     if numel(idx)>0
-                        %         disp(['FBSIV match between ' char(FBSItem.Item)]);
-                        %         disp([SimplefoodwasteGHGcomparisons.FBSName{idx(1)}]);
-                        %     end
-                        %     if numel(jdx)>0
-                        %         disp(['FBSIII match between ' char(FBSItem.Item)]);
-                        %         disp([SimplefoodwasteGHGcomparisons.FBSName{jdx(1)}]);
-                        %
-                        %     end
-                        %
-                        % end
+                        % let's average FL
+                        ii=wtfflag==1;
+                        AvgFLPercentage=sum(FLPercentage(ii).*ItemWeight(ii))/sum(ItemWeight(ii));
+                        % here calculation average food loss percentage.  Need to put in methods
+                        % that we weight by Item as appears in Food Balance Sheets (constrasts
+                        % with, say, weighting by calories.)
 
 
-                        fprintf(1,'%s,%s,%s,%s,%d,%s,%f,%f,%f\n',...
-                            faocountryname,gtapiso,ISO,strrep(ThisItem,',','_'),wtfflag(j),flagtext,FLPercentage(j),ItemWeight(j),EF(j));
-                        fprintf(fid,'%s,%s,%s,%s,%d,%s,%f,%f,%f\n',...
-                            faocountryname,gtapiso,ISO,strrep(ThisItem,',','_'),wtfflag(j),flagtext,FLPercentage(j),ItemWeight(j),EF(j));
+                        WeightWithReportedFL=sum(ItemWeight(ii));
+                        WeightWithNoReportedFL=sum(ItemWeight(wtfflag>1));
+
+                        WastedFood=sum(ItemWeight(ii).*FLPercentage(ii));
+
+                        GHGEmissions=WeightWithReportedFL.*EF
+
+                        jj=wtfflag==1 & isfinite(EF);
+
+                        TotalGHGEmissionsCountry=sum(EF(jj).*ItemWeight(jj).*FLPercentage(jj))
+
+                        AvgEmissionsFactor = sum(EF(jj).*ItemWeight(jj).*FLPercentage(jj))/sum(ItemWeight(jj).*FLPercentage(jj))
 
 
+                        fprintf(fid,'country, iso, AvgFLPercentage, WeightWithFL, WeightWithoutReportedFL,TotalGHGEmissionsCountry\n');
+                        fprintf(fid,'%s,%s,%f,%f,%f,%f\n',faocountryname,gtapiso,AvgFLPercentage,WeightWithReportedFL,WeightWithNoReportedFL,TotalGHGEmissionsCountry);
+
+                        [g0,iimap,countryname,ISO]=getgeo41_g0(ISO);
+
+                        ff=datablank;
+                        ff(iimap)=1;
+                        ff=logical(ff);
+                        population=sum(pop(ff));
+                        populationFromFAO=AreaPopulation;
+                        WastePercentageMap(iimap)=AvgFLPercentage;
+                        PercentageLossMap(iimap)=AvgFLPercentage;
+                        PercentageFoodIncludedMap(iimap)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
+                        EmissionsMap(iimap)=TotalGHGEmissionsCountry;
+                        EmissionsPerCapitaMap(iimap)=TotalGHGEmissionsCountry/population;
+
+
+                        EmissionsFactorMap(iimap)=AvgEmissionsFactor;
+
+
+
+                        TonsWastedPerCapitaMap(iimap)=WastedFood/population;
+                        TonsWastedMap(iimap)=WastedFood;
+
+
+                        countrycount=countrycount+1;
+                        DiagnosticPercentageFoodIncludedVect(countrycount)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
+                        AvgFLPercentagevect(countrycount)=AvgFLPercentage;
+                        AvgEmissionsFactorvect(countrycount)=AvgEmissionsFactor;
+                        TotalGHGEmissionsCountryvect(countrycount)=TotalGHGEmissionsCountry;
+                        WeightWithNoReportedFLvect(countrycount)=WeightWithNoReportedFL;
+                        WeightWithReportedFLvect(countrycount)=WeightWithReportedFL;
+                        populationvect(countrycount)=population;
+                        populationvectFAO(countrycount)=populationFromFAO;
+                        faocountrynamelistvect{countrycount}=faocountryname;
+                        iimapdata{countrycount}=iimap;
+                        constructedISOList{countrycount}=ISO;
+                        constructedgtapisolist{countrycount}=iso;
                     end
-
-                    % let's average FL
-                    ii=wtfflag==1;
-                    AvgFLPercentage=sum(FLPercentage(ii).*ItemWeight(ii))/sum(ItemWeight(ii));
-                    % here calculation average food loss percentage.  Need to put in methods
-                    % that we weight by Item as appears in Food Balance Sheets (constrasts
-                    % with, say, weighting by calories.)
-
-
-                    WeightWithReportedFL=sum(ItemWeight(ii));
-                    WeightWithNoReportedFL=sum(ItemWeight(wtfflag>1));
-
-                    WastedFood=sum(ItemWeight(ii).*FLPercentage(ii));
-
-                    GHGEmissions=WeightWithReportedFL.*EF
-
-                    jj=wtfflag==1 & isfinite(EF);
-
-                    TotalGHGEmissionsCountry=sum(EF(jj).*ItemWeight(jj).*FLPercentage(jj))
-
-                    AvgEmissionsFactor = sum(EF(jj).*ItemWeight(jj).*FLPercentage(jj))/sum(ItemWeight(jj).*FLPercentage(jj))
-
-
-                    fprintf(fid,'country, iso, AvgFLPercentage, WeightWithFL, WeightWithoutReportedFL,TotalGHGEmissionsCountry\n');
-                    fprintf(fid,'%s,%s,%f,%f,%f,%f\n',faocountryname,gtapiso,AvgFLPercentage,WeightWithReportedFL,WeightWithNoReportedFL,TotalGHGEmissionsCountry);
-
-                    [g0,iimap,countryname,ISO]=getgeo41_g0(ISO);
-
-                    ff=datablank;
-                    ff(iimap)=1;
-                    ff=logical(ff);
-                    population=sum(pop(ff));
-                    populationFromFAO=AreaPopulation;
-                    WastePercentageMap(iimap)=AvgFLPercentage;
-                    PercentageLossMap(iimap)=AvgFLPercentage;
-                    PercentageFoodIncludedMap(iimap)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
-                    EmissionsMap(iimap)=TotalGHGEmissionsCountry;
-                    EmissionsPerCapitaMap(iimap)=TotalGHGEmissionsCountry/population;
-
-
-                    EmissionsFactorMap(iimap)=AvgEmissionsFactor;
-
-
-
-                    TonsWastedPerCapitaMap(iimap)=WastedFood/population;
-                    TonsWastedMap(iimap)=WastedFood;
-
-
-                    countrycount=countrycount+1;
-                    DiagnosticPercentageFoodIncludedVect(countrycount)=WeightWithNoReportedFL/(WeightWithNoReportedFL+WeightWithReportedFL);
-                    AvgFLPercentagevect(countrycount)=AvgFLPercentage;
-                    AvgEmissionsFactorvect(countrycount)=AvgEmissionsFactor;
-                    TotalGHGEmissionsCountryvect(countrycount)=TotalGHGEmissionsCountry;
-                    WeightWithNoReportedFLvect(countrycount)=WeightWithNoReportedFL;
-                    WeightWithReportedFLvect(countrycount)=WeightWithReportedFL;
-                    populationvect(countrycount)=population;
-                    populationvectFAO(countrycount)=populationFromFAO;
-                    faocountrynamelistvect{countrycount}=faocountryname;
-                    iimapdata{countrycount}=iimap;
-                    constructedISOList{countrycount}=ISO;
-                    constructedgtapisolist{countrycount}=iso;
-end
                 end
 
             end
@@ -512,6 +575,6 @@ ii=isfinite(WeightWithReportedFLvect) & isfinite(AvgFLPercentagevect)
 
 avgfoodwastepercent=sum(WeightWithReportedFLvect(ii).*AvgFLPercentagevect(ii))/sum(WeightWithReportedFLvect(ii));
 
-        fclose(fid)
+fclose(fid)
 
 %%

@@ -3,6 +3,13 @@
 %
 % 
 
+
+warndlg(['This code is obselete (I think), now use ProcessFLWCalculationsTables.m'
+    ' and CalculationsOfFLW and MakeFLWMaps']);
+disp('pausing')
+keyboard
+
+
 makemaps=1;
 maketables=1;
 ISOList=SEAsia11;

@@ -23,7 +23,7 @@
 %itemlists=load('inputdatafiles/FBSAggregateAndIndividualItems.mat');
 fid=fopen('intermediatedatafiles/diagnostics.csv','w');
 
-for jFLW=1:7
+for jFLW=1:8
     for jItem=[1:6];
         %
         % FLWColumnFlag='all';
@@ -45,6 +45,8 @@ for jFLW=1:7
                 FLWColumnFlag='dist';
             case 7
                 FLWColumnFlag='cons';
+            case 8
+                FLWColumnFlag='prodhandproc';
 
             otherwise
                 error
@@ -94,8 +96,14 @@ for jFLW=1:7
                 iiFLWColumns=[5 ];
                 FLWColumntext='consFLWStages';
             case 'distandcons'
-                iiFLWColumns=[3 ];
+                iiFLWColumns=[4 5 ];
                 FLWColumntext='distandconsFLWStages';
+
+           case 'prodhandproc'
+                iiFLWColumns=[1 2 3 ];
+                FLWColumntext='prod_through_proc_FLWStages';
+
+
             otherwise
                 error
         end

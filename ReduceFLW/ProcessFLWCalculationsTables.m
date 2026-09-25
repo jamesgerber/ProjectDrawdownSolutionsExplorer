@@ -79,25 +79,27 @@ fprintf(fid,' ,   , , , ,1000 tonnes,1000 tonnes,%%,%%\n');
 
 
 
-for jFLW=[1:7];
+for jFLW=[1:8];
     for jItem=1:6;
 
 
-    switch jFLW
-        case 1
-            FLWColumnFlag='all';
-        case 2
-            FLWColumnFlag='distandcons';
-        case 3
-            FLWColumnFlag='prod';
-        case 4
-            FLWColumnFlag='hand';
-        case 5
-            FLWColumnFlag='proc';
-        case 6
-            FLWColumnFlag='dist';
-        case 7
-            FLWColumnFlag='cons';
+       switch jFLW
+            case 1
+                FLWColumnFlag='all';
+            case 2
+                FLWColumnFlag='distandcons';
+            case 3
+                FLWColumnFlag='prod';
+            case 4
+                FLWColumnFlag='hand';
+            case 5
+                FLWColumnFlag='proc';
+            case 6
+                FLWColumnFlag='dist';
+            case 7
+                FLWColumnFlag='cons';
+            case 8
+                FLWColumnFlag='prodhandproc';
 
         otherwise
             error
@@ -124,31 +126,35 @@ for jFLW=[1:7];
 
 
 
-    switch FLWColumnFlag
-        case 'all'
-            iiFLWColumns=[1 2 3 4 5];
-            FLWColumntext='allFLWStages';
-        case 'distandcons'
-            iiFLWColumns=[4 5];
-            FLWColumntext='wasteFLWStages';
-        case 'prod'
-            iiFLWColumns=[1 ];
-            FLWColumntext='prodFLWStages';
-        case 'hand'
-            iiFLWColumns=[2 ];
-            FLWColumntext='handFLWStages';
-        case 'proc'
-            iiFLWColumns=[3 ];
-            FLWColumntext='procFLWStages';
-        case 'dist'
-            iiFLWColumns=[4 ];
-            FLWColumntext='distFLWStages';
-        case 'cons'
-            iiFLWColumns=[5 ];
-            FLWColumntext='consFLWStages';
-        case 'distandcons'
-            iiFLWColumns=[3 ];
-            FLWColumntext='distandconsFLWStages';
+        switch FLWColumnFlag
+            case 'all'
+                iiFLWColumns=[1 2 3 4 5];
+                FLWColumntext='allFLWStages';
+            case 'distandcons'
+                iiFLWColumns=[4 5];
+                FLWColumntext='wasteFLWStages';
+            case 'prod'
+                iiFLWColumns=[1 ];
+                FLWColumntext='prodFLWStages';
+            case 'hand'
+                iiFLWColumns=[2 ];
+                FLWColumntext='handFLWStages';
+            case 'proc'
+                iiFLWColumns=[3 ];
+                FLWColumntext='procFLWStages';
+            case 'dist'
+                iiFLWColumns=[4 ];
+                FLWColumntext='distFLWStages';
+            case 'cons'
+                iiFLWColumns=[5 ];
+                FLWColumntext='consFLWStages';
+            case 'distandcons'
+                iiFLWColumns=[4 5 ];
+                FLWColumntext='distandconsFLWStages';
+
+           case 'prodhandproc'
+                iiFLWColumns=[1 2 3 ];
+                FLWColumntext='prod_through_proc_FLWStages';
         otherwise
             error
     end

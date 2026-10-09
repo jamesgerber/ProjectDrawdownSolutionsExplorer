@@ -72,9 +72,22 @@ for j=1:164
                 [g00,ii]=getgeo41_g0('MEX');
             case 'Venezuela (Bolivarian Republic of)'
                 [g00,ii]=getgeo41_g0('VEN');
+            case '"China, Hong Kong SAR"'
+                ii=1;
+                clear g00
+                g00.gadm0codes='HKG';
+                g00.namelist0='Hong Kong';
+            case '"China, Macao SAR"'
+
+                ii=1;
+                clear g00
+                g00.gadm0codes='MAC';
+                g00.namelist0='Macao';
+
 
             otherwise
                 countryname
+3; % for debugging, can set a breakpoint here (and see countryname come out)
 
         end
     end

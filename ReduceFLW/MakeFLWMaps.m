@@ -97,6 +97,10 @@ for jFLWcol=1:3;
         DS.FoodWastedPerCapita(j)=xAll.WeightWithReportedFLvect(j).*xAll.AvgFLPercentagevect(j)./xAll.populationvectFAO(j)/100*1e6;
         DS.EmissionsNationalLevelMt(j)=xAll.TotalGHGEmissionsTonnesCountryvect(j)/1e6;
         DS.PercentageLoss(j)=xAll.AvgFLPercentagevect(j);
+
+        %adding this one - not planning to map but it's sort of
+        %interesting to carry around.
+        DS.TonsWastedFood(j)=1000*xAll.WeightWithReportedFLvect(j).*xAll.AvgFLPercentagevect(j)/100;
     end
 
     sov2csv(DS,['GattoBasedFLWEmissionsDataForMapping' WhichColumnsText '.csv']);

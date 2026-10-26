@@ -10,3 +10,7 @@ figures/
 *figdata.mat
 MapsAndData*
 *.tif*
+
+.env
+.env.fish
+.octaverc

@@ -1,16 +1,15 @@
 
-[long,lat,croplandraster]=processgeotiff('~/shareddrives/GeospatialDrive/ProcessedData/Landcover/MehrabiCropPastureArea2015/cropland2015.tif');
-[long,lat,pastureraster]=processgeotiff('~/shareddrives/GeospatialDrive/ProcessedData/Landcover/MehrabiCropPastureArea2015/pasture2015.tif');
+
+cropland_path = [getenv('GEOSPATIAL_DRIVE') '/ProcessedData/Landcover/MehrabiCropPastureArea2015/cropland2015.tif'];
+pasture_path = [getenv('GEOSPATIAL_DRIVE') '/ProcessedData/Landcover/MehrabiCropPastureArea2015/pasture2015.tif'];
+[long,lat,croplandraster]=processgeotiff(cropland_path);
+[long,lat,pastureraster]=processgeotiff(pasture_path);
 
 
 croplandraster(croplandraster>250)=0;
 pastureraster(pastureraster>250)=0;
 croplandraster(isnan(croplandraster))=0;
 pastureraster(isnan(pastureraster))=0;
-
-wd=pwd;
-cd('~/temp')
-
 
 % NSS=getDrawdownNSS;
 % NSS.cmap=neoncolorbar;
@@ -82,7 +81,7 @@ NSS.cmap=neoncolorbar;
 NSS.uppermap=[.1 .1 .1]*2;
 %nsg(croplandraster,NSS);
 
-DataToDrawdownFigures(croplandraster,NSS,'croplandraster','tempmaps/')
+DataToDrawdownFigures(croplandraster,NSS,'croplandraster',getenv('TEMP_DIR'))
 
 
 % this now irrelevant - we have a transparent version
@@ -96,50 +95,52 @@ NSS.cmap='revgray';
 %nsg(croplandraster*100,NSS);
 %maketransparentoceans_noant_nogridlinesnostates_removeislands...
 %    ('temp.png','DrawdownStyle2_croplandgray.png',[1 1 1],1);
-DataToDrawdownFigures(croplandraster,NSS,'croplandrastergray','tempmaps/')
+DataToDrawdownFigures(croplandraster,NSS,'croplandrastergray',getenv('TEMP_DIR'))
 
 
-graytoscaledalpha('tempmaps/FigsStyledFor2026/croplandraster_transparent.png','Drawdowncropland_alpha.png',...
-    'tempmaps/FigsStyledFor2026/croplandrastergray_transparent.png')
+graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/croplandraster_transparent.png'],'Drawdowncropland_alpha.png',...
+    [getenv('TEMP_DIR') 'FigsStyledFor2026/croplandrastergray_transparent.png'])
 
 % now generalize to pasture
 NSS=getDrawdownNSS;
 NSS.cmap=orangecolorbar;
 NSS.uppermap=[.1 .1 .1]*2;
-DataToDrawdownFigures(pastureraster,NSS,'pastureraster','tempmaps/')
+DataToDrawdownFigures(pastureraster,NSS,'pastureraster',[getenv('TEMP_DIR')])
 
 NSS.cmap='revgray';
-DataToDrawdownFigures(pastureraster,NSS,'pasturerastergray','tempmaps/')
+DataToDrawdownFigures(pastureraster,NSS,'pasturerastergray',[getenv('TEMP_DIR')])
 
-graytoscaledalpha('tempmaps/FigsStyledFor2026/pastureraster_transparent.png','Drawdownpasture_alpha.png',...
-    'tempmaps/FigsStyledFor2026/pasturerastergray_transparent.png')
+graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/pastureraster_transparent.png'],'Drawdownpasture_alpha.png',...
+    [getenv('TEMP_DIR') 'FigsStyledFor2026/pasturerastergray_transparent.png'])
 
 % now background
 NSS=getDrawdownNSS;
 NSS.TitleString='';
 NSS.cmap=[.8 .8 .8;.8 .8 .8;.8 .8 .8;.8 .8 .8;]*.3/.8;
-DataToDrawdownFigures(landmasklogical,NSS,'landmask','tempmaps/')
+DataToDrawdownFigures(landmasklogical,NSS,'landmask', getenv('TEMP_DIR'))
 
 NSS.cmap=[.8 .8 .8;.8 .8 .8;.8 .8 .8;.8 .8 .8;]*0;
-DataToDrawdownFigures(croplandraster,NSS,'landmaskblack','tempmaps/')
+DataToDrawdownFigures(croplandraster,NSS,'landmaskblack', getenv('TEMP_DIR'))
 
 
-!cp tempmaps/FigsStyledFor2026/landmask_transparent.png landmask_transparent.png
+% !cp tempmaps/FigsStyledFor2026/landmask_transparent.png landmask_transparent.png
+system(['cp' getenv('TEMP_DIR') 'FigsStyledFor2026/landmask_transparent.png landmask_transparent.png'])
 
 %% now apply techniques for the light ones:
-graytoscaledalpha('tempmaps/FigsStyledFor2026/croplandraster_light_transparent.png','Drawdowncropland_light_alpha.png',...
-    'tempmaps/FigsStyledFor2026/croplandrastergray_light_transparent.png')
+graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/croplandraster_light_transparent.png'],'Drawdowncropland_light_alpha.png',...
+    [getenv('TEMP_DIR') 'FigsStyledFor2026/croplandrastergray_light_transparent.png'])
 
-graytoscaledalpha('tempmaps/FigsStyledFor2026/pastureraster_light_transparent.png','Drawdownpasture_light_alpha.png',...
-    'tempmaps/FigsStyledFor2026/pasturerastergray_light_transparent.png')
+graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/pastureraster_light_transparent.png'],'Drawdownpasture_light_alpha.png',...
+    [getenv('TEMP_DIR') 'FigsStyledFor2026/pasturerastergray_light_transparent.png'])
 
-!cp tempmaps/FigsStyledFor2026/landmask_light_transparent.png landmask_light_transparent.png
+% !cp tempmaps/FigsStyledFor2026/landmask_light_transparent.png landmask_light_transparent.png
+system(['cp ' getenv('TEMP_DIR') 'FigsStyledFor2026/landmask_light_transparent.png landmask_light_transparent.png'])
 
 % now take all three of these and make them fully transparent outside of
 % where tempmaps/FigsStyledFor2026
 
 a=imread('Drawdowncropland_light_alpha.png');
-[A,mask,transp]=imread('tempmaps/FigsStyledFor2026/landmaskblack_overlay_transparent.png');
+[A,mask,transp]=imread([getenv('TEMP_DIR') 'FigsStyledFor2026/landmaskblack_overlay_transparent.png']);
 
 
 

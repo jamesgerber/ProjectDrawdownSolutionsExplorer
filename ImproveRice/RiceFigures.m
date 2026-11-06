@@ -16,6 +16,8 @@ MapsAndDataFilename='';
 
 [CH4CurrentEmissions,CurrentAWDUptake,BoUptake,...
     CH4EmissionsIntensityImprovementWithAWDUptake,WetRiceArea,DryRiceArea]=calculatepotentialuptakerice;
+
+globalarray2geotiff(CH4CurrentEmissions,['ImproveRiceProductionMapsAndDataRevB/data_geotiff/CH4currentEmissions_tonsCO2eqperharvestedha.tif'])
 % CurrentEmissions - methane emissions from flooded rice (tons CO2-eq per
 % harvested ha)
 % CurrentAWDUptake - estimates of current uptake of AWD (national level

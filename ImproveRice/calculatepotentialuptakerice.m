@@ -11,12 +11,12 @@ function [CurrentEmissions,CurrentAWDUptake,BoUptake,EmissionsIntensityImproveme
 %
 
 
-alreadydone=0;
+alreadydone=1;
 
 if alreadydone==0
     %% Advanced management uptake
 
-    load intermediatedata/rice/Year2020RiceCH4eEmissions
+    load intermediatedatalayers/rice/Year2020RiceCH4eEmissions
     %Year2020CH4eEmissions=perharicech4e.*area2020.*fma;
     perharicech4e=Year2020CH4eEmissions./area2020./fma;
     perharicech4e(area2020<0.001)=0;
@@ -139,12 +139,12 @@ if alreadydone==0
     sum(nansum(AvgEmissionsIntensity.*WetRiceArea.*fma))
 
 
-    save intermediatedata/RiceSolutionsEmissionsIntensitiesRevB AvgEmissionsIntensity WorstCaseEmissionsIntensity ...
+    save intermediatedatalayers/RiceSolutionsEmissionsIntensitiesRevB AvgEmissionsIntensity WorstCaseEmissionsIntensity ...
         BestCaseEmissionsIntensity perharicech4e paddyricearea EmissionsIntensityImprovementWithAWDUptake WetRiceArea ...
         DryRiceArea uptake BoWeightedPossibleUptake
 end
 
-load intermediatedata/RiceSolutionsEmissionsIntensitiesRevB
+load intermediatedatalayers/RiceSolutionsEmissionsIntensitiesRevB
 
 
 CurrentEmissions=AvgEmissionsIntensity;

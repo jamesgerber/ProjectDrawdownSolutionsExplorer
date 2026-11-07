@@ -76,8 +76,12 @@ pastureraster(isnan(pastureraster))=0;
 % first code block:  this is making the cropland area raster, then it makes
 % a gray version.  We'll then use that gray version to define how much
 % transparency to go in the alpha channel.
+
+pyrun("import importlib, colormap_utils")
+[~, cmap_rgb] = pyrun("from colormap_utils import fetch_cmap; cmap_hex, cmap_rgb = fetch_cmap('neoncolorbar')", ["cmap_hex", "cmap_rgb"]);
+
 NSS=getDrawdownNSS;
-NSS.cmap=neoncolorbar;
+NSS.cmap= double(cmap_rgb/255);  
 NSS.uppermap=[.1 .1 .1]*2;
 %nsg(croplandraster,NSS);
 
@@ -103,12 +107,13 @@ graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/croplandraster_transpar
 
 % now generalize to pasture
 NSS=getDrawdownNSS;
-NSS.cmap=orangecolorbar;
+[~, cmap_rgb] = pyrun("from colormap_utils import fetch_cmap; cmap_hex, cmap_rgb = fetch_cmap('orangecolorbar')", ["cmap_hex", "cmap_rgb"]);
+NSS.cmap= double(cmap_rgb/255); 
 NSS.uppermap=[.1 .1 .1]*2;
-DataToDrawdownFigures(pastureraster,NSS,'pastureraster',[getenv('TEMP_DIR')])
+DataToDrawdownFigures(pastureraster,NSS,'pastureraster', getenv('TEMP_DIR'))
 
 NSS.cmap='revgray';
-DataToDrawdownFigures(pastureraster,NSS,'pasturerastergray',[getenv('TEMP_DIR')])
+DataToDrawdownFigures(pastureraster,NSS,'pasturerastergray', getenv('TEMP_DIR'))
 
 graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/pastureraster_transparent.png'],'Drawdownpasture_alpha.png',...
     [getenv('TEMP_DIR') 'FigsStyledFor2026/pasturerastergray_transparent.png'])
@@ -124,7 +129,7 @@ DataToDrawdownFigures(croplandraster,NSS,'landmaskblack', getenv('TEMP_DIR'))
 
 
 % !cp tempmaps/FigsStyledFor2026/landmask_transparent.png landmask_transparent.png
-system(['cp' getenv('TEMP_DIR') 'FigsStyledFor2026/landmask_transparent.png landmask_transparent.png'])
+system(['cp ' getenv('TEMP_DIR') 'FigsStyledFor2026/landmask_transparent.png landmask_transparent.png'])
 
 %% now apply techniques for the light ones:
 graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/croplandraster_light_transparent.png'],'Drawdowncropland_light_alpha.png',...

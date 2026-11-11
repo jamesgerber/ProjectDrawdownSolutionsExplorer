@@ -82,13 +82,8 @@ NSS=getDrawdownNSS;
 NSS.hexmap = cellstr(string(cmap_hex));
 NSS.cmap= double(cmap_rgb/255);  
 NSS.uppermap=[.1 .1 .1]*2;
-%nsg(croplandraster,NSS);
 
 DataToDrawdownFigures(croplandraster,NSS,'croplandraster',getenv('TEMP_DIR'))
-
-% this now irrelevant - we have a transparent version
-%maketransparentoceans_noant_nogridlinesnostates_removeislands...
-%    ('temp.png','DrawdownStyle2_croplandmap.png',[1 1 1],1);
 
 
 % now make alpha channel of gray:

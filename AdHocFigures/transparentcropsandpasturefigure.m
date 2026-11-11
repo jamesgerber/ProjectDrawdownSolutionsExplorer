@@ -3,13 +3,11 @@
 cropland_path = [getenv('GEOSPATIAL_DRIVE') '/ProcessedData/Landcover/MehrabiCropPastureArea2015/cropland2015.tif'];
 pasture_path = [getenv('GEOSPATIAL_DRIVE') '/ProcessedData/Landcover/MehrabiCropPastureArea2015/pasture2015.tif'];
 [long,lat,croplandraster]=processgeotiff(cropland_path);
-[long,lat,pastureraster]=processgeotiff(pasture_path);
 
 
 croplandraster(croplandraster>250)=0;
-pastureraster(pastureraster>250)=0;
 croplandraster(isnan(croplandraster))=0;
-pastureraster(isnan(pastureraster))=0;
+
 
 % NSS=getDrawdownNSS;
 % NSS.cmap=neoncolorbar;
@@ -76,55 +74,69 @@ pastureraster(isnan(pastureraster))=0;
 % first code block:  this is making the cropland area raster, then it makes
 % a gray version.  We'll then use that gray version to define how much
 % transparency to go in the alpha channel.
+
+pyrun("import importlib, colormap_utils")
+[cmap_hex, cmap_rgb] = pyrun("from colormap_utils import fetch_cmap; cmap_hex, cmap_rgb = fetch_cmap('neoncolorbar_r')", ["cmap_hex", "cmap_rgb"]);
+
 NSS=getDrawdownNSS;
-NSS.cmap=neoncolorbar;
+NSS.hexmap = cellstr(string(cmap_hex));
+NSS.cmap= double(cmap_rgb/255);  
 NSS.uppermap=[.1 .1 .1]*2;
-%nsg(croplandraster,NSS);
 
 DataToDrawdownFigures(croplandraster,NSS,'croplandraster',getenv('TEMP_DIR'))
 
 
-% this now irrelevant - we have a transparent version
-%maketransparentoceans_noant_nogridlinesnostates_removeislands...
-%    ('temp.png','DrawdownStyle2_croplandmap.png',[1 1 1],1);
-
-
 % now make alpha channel of gray:
 
+NSS=getDrawdownNSS;   % base struct, colormap will be overridden below
+[gray_hex, ~] = pyrun("from colormap_utils import fetch_cmap; cmap_hex, cmap_rgb = fetch_cmap('grays')", ["cmap_hex", "cmap_rgb"]);
+NSS.hexmap = cellstr(string(gray_hex));   % 'grays' = low:light -> high:dark, same semantics as old revgray
 NSS.cmap='revgray';
-%nsg(croplandraster*100,NSS);
-%maketransparentoceans_noant_nogridlinesnostates_removeislands...
-%    ('temp.png','DrawdownStyle2_croplandgray.png',[1 1 1],1);
+
 DataToDrawdownFigures(croplandraster,NSS,'croplandrastergray',getenv('TEMP_DIR'))
 
 
+NSS=getDrawdownNSS;
+NSS.hexmap = {'#000000';'#000000'};   % flat black, every value
+NSS.cmap=[.8 .8 .8;.8 .8 .8;.8 .8 .8;.8 .8 .8;]*0;
+DataToDrawdownFigures(croplandraster,NSS,'landmaskblack', getenv('TEMP_DIR'))
+clear croplandraster % Helpful for memory issues
 graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/croplandraster_transparent.png'],'Drawdowncropland_alpha.png',...
     [getenv('TEMP_DIR') 'FigsStyledFor2026/croplandrastergray_transparent.png'])
-
-% now generalize to pasture
-NSS=getDrawdownNSS;
-NSS.cmap=orangecolorbar;
-NSS.uppermap=[.1 .1 .1]*2;
-DataToDrawdownFigures(pastureraster,NSS,'pastureraster',[getenv('TEMP_DIR')])
-
-NSS.cmap='revgray';
-DataToDrawdownFigures(pastureraster,NSS,'pasturerastergray',[getenv('TEMP_DIR')])
-
-graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/pastureraster_transparent.png'],'Drawdownpasture_alpha.png',...
-    [getenv('TEMP_DIR') 'FigsStyledFor2026/pasturerastergray_transparent.png'])
 
 % now background
 NSS=getDrawdownNSS;
 NSS.TitleString='';
+NSS.hexmap = {'#4D4D4D';'#4D4D4D'};   % flat 0.3 gray ([.8]*.3/.8), every value
 NSS.cmap=[.8 .8 .8;.8 .8 .8;.8 .8 .8;.8 .8 .8;]*.3/.8;
 DataToDrawdownFigures(landmasklogical,NSS,'landmask', getenv('TEMP_DIR'))
 
-NSS.cmap=[.8 .8 .8;.8 .8 .8;.8 .8 .8;.8 .8 .8;]*0;
-DataToDrawdownFigures(croplandraster,NSS,'landmaskblack', getenv('TEMP_DIR'))
+% now generalize to pasture
+[long,lat,pastureraster]=processgeotiff(pasture_path);
+pastureraster(pastureraster>250)=0;
+pastureraster(isnan(pastureraster))=0;
+
+NSS=getDrawdownNSS;
+[o_hex, cmap_rgb] = pyrun("from colormap_utils import fetch_cmap; cmap_hex, cmap_rgb = fetch_cmap('orangecolorbar_r')", ["cmap_hex", "cmap_rgb"]);
+NSS.hexmap = cellstr(string(o_hex));   % was being ignored before: DataToDrawdownFigures hardcodes neoncolorbar without hexmap
+NSS.cmap= double(cmap_rgb/255); 
+NSS.uppermap=[.1 .1 .1]*2;
+DataToDrawdownFigures(pastureraster,NSS,'pastureraster', getenv('TEMP_DIR'))
+
+NSS=getDrawdownNSS;   % reset struct so pasture doesn't inherit cropland fields
+[gray_hex, ~] = pyrun("from colormap_utils import fetch_cmap; cmap_hex, cmap_rgb = fetch_cmap('grays')", ["cmap_hex", "cmap_rgb"]);
+NSS.hexmap = cellstr(string(gray_hex));
+NSS.cmap='revgray';
+DataToDrawdownFigures(pastureraster,NSS,'pasturerastergray', getenv('TEMP_DIR'))
+
+graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/pastureraster_transparent.png'],'Drawdownpasture_alpha.png',...
+    [getenv('TEMP_DIR') 'FigsStyledFor2026/pasturerastergray_transparent.png'])
+
+
 
 
 % !cp tempmaps/FigsStyledFor2026/landmask_transparent.png landmask_transparent.png
-system(['cp' getenv('TEMP_DIR') 'FigsStyledFor2026/landmask_transparent.png landmask_transparent.png'])
+system(['cp ' getenv('TEMP_DIR') 'FigsStyledFor2026/landmask_transparent.png landmask_transparent.png'])
 
 %% now apply techniques for the light ones:
 graytoscaledalpha([getenv('TEMP_DIR') 'FigsStyledFor2026/croplandraster_light_transparent.png'],'Drawdowncropland_light_alpha.png',...
